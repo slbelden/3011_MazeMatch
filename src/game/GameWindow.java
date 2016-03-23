@@ -27,248 +27,186 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 public class GameWindow extends JFrame implements ActionListener {
-   /**
-    * because it is a serializable object, need this or javac complains a lot
-    */
-   public static final long serialVersionUID = 1;
+    /**
+     * because it is a serializable object, need this or javac complains a lot
+     */
+    public static final long serialVersionUID = 1;
 
-   /*
-    * Here I declare some buttons and declare an array to hold the grid
-    * elements. But, you can do what you want.
-    */
-   public static JButton newButton,resetButton, quitButton;
-   private int              startAt          = 1;
+    /*
+     * Here I declare some buttons and declare an array to hold the grid
+     * elements. But, you can do what you want.
+     */
+    public static JButton    newButton, resetButton, quitButton;
+    private int              startAt          = 0;
 
-   /**
-    * Constructor sets the window name using super(), changes the layout, which
-    * you really need to read up on, and maybe you can see why I chose this one.
-    *
-    * @param s
-    */
+    /**
+     * Constructor sets the window name using super(), changes the layout, which
+     * you really need to read up on, and maybe you can see why I chose this
+     * one.
+     *
+     * @param s
+     */
 
-   public GameWindow(String s) {
-      super(s);
-      GridBagLayout gbl = new GridBagLayout();
-      setLayout(gbl);
-   }
+    public GameWindow(String s) {
+        super(s);
+        GridBagLayout gbl = new GridBagLayout();
+        setLayout(gbl);
+    }
 
-   /**
-    * For the buttons
-    * 
-    * @param e
-    *           is the ActionEvent
-    * 
-    *           BTW can ask the event for the name of the object generating
-    *           event. The odd syntax for non-java people is that "exit" for
-    *           instance is converted to a String object, then that object's
-    *           equals() method is called.
-    */
+    /**
+     * For the buttons
+     * 
+     * @param e
+     *            is the ActionEvent
+     * 
+     *            BTW can ask the event for the name of the object generating
+     *            event. The odd syntax for non-java people is that "exit" for
+     *            instance is converted to a String object, then that object's
+     *            equals() method is called.
+     */
 
-   public void actionPerformed(ActionEvent e) {
-      if ("exit".equals(e.getActionCommand()))
-         System.exit(0);
-      if ("reset".equals(e.getActionCommand()))
-         System.out.println("reset pressed\n");
-      if ("new".equals(e.getActionCommand()))
-         System.out.println("new pressed\n");
-   }
-
-   /**
-    * Establishes the inital board
-    */
-
-   public void setUp() {
-      // actually create the array for elements, make sure it is big enough
-
-      // Need to play around with the dimensionts and the gridx/y values
-      // These constraints are going to be added to the pieces/parts I
-      // stuff into the "GridBag".
-      
-      GridBagConstraints basic = new GridBagConstraints();
-      basic.anchor = GridBagConstraints.FIRST_LINE_START;
-      basic.gridx = startAt;
-      basic.gridy = 0;
-      basic.gridwidth = 1;
-      basic.gridheight = 1;
-      basic.fill = GridBagConstraints.BOTH;
-      
-      
-   // adds a row of buffer space at the top of the window
-      basic.fill = GridBagConstraints.HORIZONTAL;
-      basic.weightx = .01;
-      basic.weighty = .01;
-      basic.gridx = 1;
-      basic.gridy = 1;
-      this.add(new JLabel(""), basic); 
-      
-      basic.fill = GridBagConstraints.HORIZONTAL;
-      basic.weighty = .5;
-      basic.gridx = 0;
-      basic.gridy = 5;
-      this.add(new JLabel(""), basic); 
-     
-      
-      //this.addBuffer(basic);
-      this.addButtons(basic);
-      this.addSideTiles(basic);
-      this.addGameGrid(basic);
-      
-      
-      // Here I create 16 elements to put into my gameBoard
-
-      // Now I add each one, modifying the default gridx/y and add
-      // it along with the modified constraint
-      
-      return;
-
-   }
-   
-   public void addSideTiles(GridBagConstraints basic) {
-       
-       Border inBorder = BorderFactory.createEtchedBorder();
-
-       JLabel[] leftPanels = new JLabel[8];
-       JLabel[] rightPanels = new JLabel[8];
-       
-       JPanel lRow4 = new JPanel(new GridLayout(2, 1));
-       JPanel lRow5 = new JPanel(new GridLayout(4, 1));
-       JPanel lRow6 = new JPanel(new GridLayout(2, 1));
-       JPanel rRow4 = new JPanel(new GridLayout(2, 1));
-       JPanel rRow5 = new JPanel(new GridLayout(4, 1));
-       JPanel rRow6 = new JPanel(new GridLayout(2, 1));
-       
-       for (int i = 0; i < 16; i++) {
-           JLabel label = new JLabel(new Integer(i + 1).toString());
-           label.setPreferredSize(new Dimension(100, 100));
-           label.setBorder(inBorder);
-           
-           if(i<8){
-               leftPanels[i] = label;
-               if(i < 2)
-                   lRow4.add(label);
-               else if(i < 6)
-                   lRow5.add(label);
-               else if(i < 8)
-                   lRow6.add(label);
-               
-           }
-           else{
-               rightPanels[i-8] = label;
-               if(i < 10)
-                   rRow4.add(label);
-               else if(i < 14)
-                   rRow5.add(label);
-               else
-                   rRow6.add(label);
-           }
-       }
-
-           
-           basic.fill = GridBagConstraints.RELATIVE;
-           basic.weightx = 0;
-           basic.weighty = 0;
-           
-           basic.gridx = 0;
-           basic.gridy = 1;
-           this.add(lRow4, basic);
-           
-           basic.gridx = 0;
-           basic.gridy = 2;
-           this.add(lRow5, basic);
-           
-           basic.gridx = 0;
-           basic.gridy = 3;
-           this.add(lRow6, basic);
-           
-           basic.gridx = 3;
-           basic.gridy = 1;
-           this.add(rRow4, basic);
-           
-           basic.gridx = 3;
-           basic.gridy = 2;
-           this.add(rRow5, basic);
-           
-           basic.gridx = 3;
-           basic.gridy = 3;
-           this.add(rRow6, basic);
-       }
-   
-   public void addGameGrid(GridBagConstraints basic){
-      Border border = BorderFactory.createLineBorder(Color.black, 1);
-      Border inborder = BorderFactory.createEtchedBorder();
-      
-      // creates a 4x4 gridlayout for the game grid. 
-      JPanel panel = new JPanel(new GridLayout (4,4));
-      
-
-      panel.setBorder(border);
-      
-      JLabel[] grid = new JLabel[16];
-      
-      for(int i = 0;i < 16; i++){
-          JLabel temp = new JLabel(new Integer(i+1).toString());
-          temp.setBorder(inborder);
-          temp.setPreferredSize(new Dimension(100,100));
-          grid[i] = temp;
-          panel.add(temp);
-      }
-      
-      basic.fill = GridBagConstraints.CENTER;
-      basic.weightx = 1;
-      basic.gridx = 1;
-      basic.gridy = 2;
-      this.add(panel, basic);  
-   }
-
-   /**
-    * Used by setUp() to configure the buttons on a button bar and add it to the
-    * gameBoard
-    * Takes a GridBagConstraints to position the buttons
-    */
-   public void addButtons(GridBagConstraints basic) {
-      Border border = BorderFactory.createLineBorder(Color.black, 1);
-      
-      JPanel panel = new JPanel();
-      panel.setPreferredSize(new Dimension(250,50));
-      panel.setBorder(border);
-      
-      newButton = new JButton("New Game");    
-      resetButton = new JButton("Reset");      
-      quitButton = new JButton("Quit");
-      
-      newButton.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-            // new game action
-         }          
-      });
-      
-      resetButton.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
-            // reset tiles action
-         }          
-      });
-      
-      quitButton.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
+        if ("exit".equals(e.getActionCommand()))
             System.exit(0);
-         }          
-      });
-      
-      panel.add(newButton);
-      panel.add(resetButton);
-      panel.add(quitButton); 
-      
-      basic.fill = GridBagConstraints.RELATIVE;
-      basic.weighty = 0.3;
-      basic.gridx = 0;
-      basic.gridy = 0;
-      this.add(panel, basic); 
-      
-      
-      
-      return;
-   }
+        if ("reset".equals(e.getActionCommand()))
+            System.out.println("reset pressed\n");
+        if ("new".equals(e.getActionCommand()))
+            System.out.println("new pressed\n");
+    }
+
+    /**
+     * Establishes the inital board
+     */
+
+    public void setUp() {
+        // actually create the array for elements, make sure it is big enough
+
+        // Need to play around with the dimensionts and the gridx/y values
+        // These constraints are going to be added to the pieces/parts I
+        // stuff into the "GridBag".
+
+        GridBagConstraints basic = new GridBagConstraints();
+        basic.anchor = GridBagConstraints.FIRST_LINE_START;
+        basic.gridx = 0;
+        basic.gridy = startAt;
+        basic.gridwidth = 1;
+        basic.gridheight = 1;
+        basic.fill = GridBagConstraints.RELATIVE;
+
+        addElements(basic);
+
+        // Here I create 16 elements to put into my gameBoard
+
+        // Now I add each one, modifying the default gridx/y and add
+        // it along with the modified constraint
+
+        return;
+
+    }
+
+    /**
+     * Used by setUp() to configure the grid and add it to the game board Takes
+     * a GridBagConstraints to position the buttons
+     * 
+     * @param basic
+     */
+    public void addElements(GridBagConstraints basic) {
+        Border border = BorderFactory.createLineBorder(Color.black, 1);
+
+        // nested for loop to iterate through the grid (9 rows and 7 columns)
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // if the first cell is selected call the addButtons method
+                if (i == 0 && j == 0) {
+                    this.addButtons(basic);
+                }
+
+                // if anything besides the first 3 cells of row 1 or any of row
+                // 2 are selected add empty cells to the board
+                else if (i == 0 && j > 2 || i == 1) {
+                    // sets the grid cell
+                    basic.gridx = j;
+                    basic.gridy = i;
+
+                    // create a blank label, set its size, and it to the grid
+                    JLabel label = new JLabel("");
+                    label.setPreferredSize(new Dimension(100, 45));
+                    this.add(label, basic);
+                }
+
+                // if the cell selected is in the first column or last column,
+                // but is after the first row add panels. These are on the side
+                // and hold tiles before being placed
+                else if (j == 0 || j == 7 && i > 0) {
+                    // sets the cell
+                    basic.gridx = j;
+                    basic.gridy = i;
+
+                    // create a panel, set its size and border, then add to grid
+                    JPanel panel = new JPanel();
+                    panel.setBorder(border);
+                    panel.setPreferredSize(new Dimension(100, 100));
+                    this.add(panel, basic);
+                }
+
+                // if the middle 16 cells are selected, add panels. These are
+                // where the user places tiles in the game grid to play
+                else if (i > 3 && i < 8 && j > 1 && j < 6) {
+                    // set the cell
+                    basic.gridx = j;
+                    basic.gridy = i;
+
+                    // create a panel, set its size and border, then add to grid
+                    JPanel panel = new JPanel();
+                    panel.setBorder(border);
+                    panel.setPreferredSize(new Dimension(100, 100));
+                    this.add(panel, basic);
+                }
+            }
+        }
+    }
+
+    /**
+     * Used by setUp() to configure the buttons on a button bar and add it to
+     * the gameBoard Takes a GridBagConstraints to position the buttons
+     * 
+     * @param basic
+     */
+    public void addButtons(GridBagConstraints basic) {
+        // create new buttons for newButton, resetButton, and quitButton
+        // set their text, size, and action command
+        
+        newButton = new JButton("New Game");
+        newButton.setPreferredSize(new Dimension(100, 30));
+        newButton.setActionCommand("new");
+        newButton.addActionListener(this);
+
+        resetButton = new JButton("Reset");
+        resetButton.setPreferredSize(new Dimension(100, 30));
+        resetButton.setActionCommand("reset");
+        resetButton.addActionListener(this);
+
+        quitButton = new JButton("Quit");
+        quitButton.setPreferredSize(new Dimension(100, 30));
+        quitButton.setActionCommand("exit");
+        quitButton.addActionListener(this);
+
+        // set the cells to the first row, and the first 3 cells of that row
+        //add the buttons to the grid
+        
+        basic.gridy = 0;
+        
+        basic.gridx = 0;
+        this.add(newButton, basic);
+
+        basic.gridx = 1;
+        this.add(resetButton, basic);
+
+        basic.gridx = 2;
+        this.add(quitButton, basic);
+
+        return;
+    }
 
 };
