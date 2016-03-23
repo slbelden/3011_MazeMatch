@@ -76,13 +76,14 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * Establishes the inital board
+     * Establishes the initial board
+     * @author Colin Riley
      */
 
     public void setUp() {
         // actually create the array for elements, make sure it is big enough
 
-        // Need to play around with the dimensionts and the gridx/y values
+        // Need to play around with the dimensions and the grid x/y values
         // These constraints are going to be added to the pieces/parts I
         // stuff into the "GridBag".
 
@@ -126,7 +127,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // Here I create 16 elements to put into my gameBoard
 
-        // Now I add each one, modifying the default gridx/y and add
+        // Now I add each one, modifying the default grid x/y and add
         // it along with the modified constraint
 
         return;
@@ -138,6 +139,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * a GridBagConstraints to position the buttons
      * 
      * @param basic
+     * @author Colin Riley
      */
     public void addElements(GridBagConstraints basic, Tile[] tiles) {
         Border border = BorderFactory.createLineBorder(Color.black, 1);
@@ -209,6 +211,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * the gameBoard Takes a GridBagConstraints to position the buttons
      * 
      * @param basic
+     * @author Colin Riley
      */
     public void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
