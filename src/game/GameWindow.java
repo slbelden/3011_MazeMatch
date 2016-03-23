@@ -6,7 +6,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * Date: Feb 19, 2016
+ * Date: March 23, 2016
  *
  * This is the actual "game". May/will have to make some major changes.
  * This is just a "hollow" shell.
@@ -92,9 +92,37 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.gridy = startAt;
         basic.gridwidth = 1;
         basic.gridheight = 1;
+        basic.ipadx = 0;
+        basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
 
-        addElements(basic);
+        Tile[] tiles = new Tile[16];
+
+        Border border = BorderFactory.createLineBorder(Color.black, 1);
+
+        for (int i = 1; i <= 16; ++i) {
+            String s = Integer.toString(i);
+            Point p;
+            if (i <= 8) {
+                basic.gridx = 0;
+                basic.gridy = 2 + i;
+
+                p = new Point(0, 2 + i);
+            } else {
+                basic.gridx = 7;
+                basic.gridy = i - 6;
+                p = new Point(7, i - 6);
+            }
+
+            tiles[i - 1] = new Tile(i, s, p);
+            tiles[i - 1].setBackground(Color.white);
+            tiles[i - 1].setOpaque(true);
+            tiles[i - 1].setBorder(border);
+            tiles[i - 1].setPreferredSize(new Dimension(100, 100));
+            // this.add(tiles[i-1],basic);
+        }
+
+        addElements(basic, tiles);
 
         // Here I create 16 elements to put into my gameBoard
 
@@ -111,7 +139,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * 
      * @param basic
      */
-    public void addElements(GridBagConstraints basic) {
+    public void addElements(GridBagConstraints basic, Tile[] tiles) {
         Border border = BorderFactory.createLineBorder(Color.black, 1);
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
@@ -147,6 +175,15 @@ public class GameWindow extends JFrame implements ActionListener {
                     JPanel panel = new JPanel();
                     panel.setBorder(border);
                     panel.setPreferredSize(new Dimension(100, 100));
+                    
+                    if(j ==0){
+                        panel.add(tiles[i-2]);
+                    }
+                    else{
+                        panel.add(tiles[i-2+8]);
+                    }
+                    
+                    
                     this.add(panel, basic);
                 }
 
@@ -176,7 +213,7 @@ public class GameWindow extends JFrame implements ActionListener {
     public void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
         // set their text, size, and action command
-        
+
         newButton = new JButton("New Game");
         newButton.setPreferredSize(new Dimension(100, 30));
         newButton.setActionCommand("new");
@@ -192,11 +229,9 @@ public class GameWindow extends JFrame implements ActionListener {
         quitButton.setActionCommand("exit");
         quitButton.addActionListener(this);
 
-        // set the cells to the first row, and the first 3 cells of that row
-        //add the buttons to the grid
-        
+        // set the cells to the first row, and the first 3 cells of that
         basic.gridy = 0;
-        
+
         basic.gridx = 0;
         this.add(newButton, basic);
 

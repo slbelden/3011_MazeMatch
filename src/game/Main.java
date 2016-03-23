@@ -5,7 +5,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * Date: Feb 19, 2016
+ * Date: March 23, 2016
  *
  * A starting point for the COSC 3011 programming assignment
  * Probably need to fix a bunch of stuff, but this compiles and runs.
@@ -38,7 +38,7 @@ public class Main {
     game.setUp();
     
     game.setVisible(true);
-
+    
     try {
       // The 4 that installed on Linux here
       // May have to test on Windows boxes to see what is there.
