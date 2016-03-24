@@ -77,7 +77,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * @author Colin Riley
      */
 
     public void setUp() {
@@ -96,31 +95,44 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipadx = 0;
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
-
+        
+        
+        /**
+         * @author Colin Riley (did work on tiles)
+         */
+        // creates and array of tiles
         Tile[] tiles = new Tile[16];
-
+        
+        // creates a border
         Border border = BorderFactory.createLineBorder(Color.black, 1);
 
+        // for loop to assign the 16 tiles
         for (int i = 1; i <= 16; ++i) {
             String s = Integer.toString(i);
             Point p;
+            
+            // sets the point of the first 8 tiles to the left side
             if (i <= 8) {
                 basic.gridx = 0;
                 basic.gridy = 2 + i;
 
                 p = new Point(0, 2 + i);
-            } else {
+            }
+            
+            // sets the points of the second 8 tiles to the right side
+            else {
                 basic.gridx = 7;
                 basic.gridy = i - 6;
                 p = new Point(7, i - 6);
             }
-
+            
+            // creates a tile and adds it to the array, sets various label 
+            // properties
             tiles[i - 1] = new Tile(i, s, p);
             tiles[i - 1].setBackground(Color.white);
             tiles[i - 1].setOpaque(true);
             tiles[i - 1].setBorder(border);
             tiles[i - 1].setPreferredSize(new Dimension(100, 100));
-            // this.add(tiles[i-1],basic);
         }
 
         addElements(basic, tiles);
@@ -137,9 +149,10 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Used by setUp() to configure the grid and add it to the game board Takes
      * a GridBagConstraints to position the buttons
+     * Also adds tiles to side panels.
      * 
+     * @author Colin Riley (reworked from first)
      * @param basic
-     * @author Colin Riley
      */
     public void addElements(GridBagConstraints basic, Tile[] tiles) {
         Border border = BorderFactory.createLineBorder(Color.black, 1);
@@ -210,8 +223,8 @@ public class GameWindow extends JFrame implements ActionListener {
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
      * 
+     * @author Colin Riley (reworked from first)
      * @param basic
-     * @author Colin Riley
      */
     public void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
