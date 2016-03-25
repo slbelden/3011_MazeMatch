@@ -27,15 +27,13 @@ import javax.swing.*;
  */
 public class Main {
     // Globally accessible things
-    // Probably should declare any buttons here
-    public JButton lButton, nButton, rButton;
     
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
 
     public static void main(String[] args) {
         // This is the play area
-        GameWindow game = new GameWindow("Group E aMaze");
+        game = new GameWindow("Group E aMaze");
 
         // have to override the default layout to reposition things!!!!!!!
         game.setSize(new Dimension(900, 1000));

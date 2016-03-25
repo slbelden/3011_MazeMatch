@@ -23,7 +23,6 @@
 package game;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,17 +32,25 @@ public class GameWindow extends JFrame implements ActionListener {
     public static final long serialVersionUID = 1;
 
     /**
-     * @author Kim Buckner Declare Buttons
+     * Declare Buttons
+     * 
+     * @author Kim Buckner
      */
     public static JButton newButton, resetButton, quitButton;
-    private int startAt = 0;
     
-    // Data used in multiple places for game logic
+    // We don't use this and we don't know what it's for.
+    // But it was in the template so we are leaving it here.
+    // private int startAt = 0;
+
+    // Data used for game logic
     public static Tile lastClicked;
 
     /**
-     * @author Kim Buckner Constructor: Sets the window name using super() and
+     * Constructor:
+     * Sets the window name using super() and
      *         changes the layout
+     * 
+     * @author Kim Buckner 
      *
      * @param s
      *            is the window title
@@ -84,7 +91,7 @@ public class GameWindow extends JFrame implements ActionListener {
         GridBagConstraints basic = new GridBagConstraints();
         basic.anchor = GridBagConstraints.FIRST_LINE_START;
         basic.gridx = 0;
-        basic.gridy = startAt;
+        basic.gridy = 0;
         basic.gridwidth = 1;
         basic.gridheight = 1;
         basic.ipadx = 0;
@@ -94,6 +101,8 @@ public class GameWindow extends JFrame implements ActionListener {
         /**
          * @author Colin Riley
          * (did work on tiles)
+         * @author Stepen Belden
+         * (code cleanup)
          */
 
         // creates an array of tiles
@@ -101,41 +110,11 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // for loop to assign the 16 tiles
         for (int i = 1; i <= 16; ++i) {
-            Point p;
-
-            // sets the point of the first 8 tiles to the left side
-            if (i <= 8) {
-                basic.gridx = 0;
-                basic.gridy = 2 + i;
-
-                p = new Point(0, 2 + i);
-            }
-
-            // sets the points of the second 8 tiles to the right side
-            else {
-                basic.gridx = 7;
-                basic.gridy = i - 6;
-                p = new Point(7, i - 6);
-            }
-
             // creates a tile and adds it to the array, sets various label
             // properties
-            tiles[i - 1] = new Tile(i, p);
+            tiles[i - 1] = new Tile(i);
             tiles[i - 1].makeLive();
         }
-        addElements(basic, tiles);
-    }
-
-    /**
-     * Used by setUp() to configure the grid and add it to the game board Takes
-     * a GridBagConstraints to position the buttons Also adds tiles to side
-     * panels.
-     * 
-     * @author Colin Riley (reworked from first)
-     * @param basic
-     */
-    public void addElements(GridBagConstraints basic, Tile[] tiles) {
-        Border border = BorderFactory.createLineBorder(Color.black, 1);
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
@@ -181,8 +160,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     basic.gridy = i;
 
                     // create a panel, set its size and border, then add to grid
-                    Tile panel = new Tile(i*j, null);
-                    panel.setBorder(border);
+                    Tile panel = new Tile(0);
                     panel.setPreferredSize(new Dimension(100, 100));
                     panel.makeEmpty();
                     this.add(panel, basic);
@@ -195,8 +173,12 @@ public class GameWindow extends JFrame implements ActionListener {
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
      * 
-     * @author Colin Riley (reworked from first)
+     * @author Colin Riley
+     * (reworked from first)
      * @param basic
+     * 
+     * This doesn't need to be a function because it's only called once,
+     * but it was part of the template so we're leaving it here for now
      */
     public void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
@@ -229,20 +211,49 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.gridx = 2;
         this.add(quitButton, basic);
     }
-    
+
     /**
+     * Handles the game logic for swapping tiles only after 2
+     * different tiles have been clicked.
+     *            
      * @author Stephen Belden
-     * @param clickedTile is the tile that was most recently clicked
-     * 
-     * Handles the game logic for swapping tiles only after 2 different tiles
-     * have been clicked.
+     * @param clickedTile
+     *            is the tile that was most recently clicked
      */
-    public void setClicked(Tile clickedTile){
-        if(lastClicked == null) lastClicked = clickedTile;
-        else {
-            // This resets the tile to it's default un-clciked state
-            if(lastClicked == clickedTile){
+    public void setClicked(Tile clickedTile) {
+        // Case in which no tile has been selected yet.
+        if (lastClicked == null) {
+            lastClicked = clickedTile;
+            clickedTile.setBackground(Color.green);
+        } else {
+            // This resets the tile to it's default un-clicked state
+            // if you clicked the Tile that was already selected
+            if (lastClicked == clickedTile) {
+                clickedTile.reset();
+                lastClicked = null;
+            // Case in which two tiles are clicked
+            } else if (clickedTile.isEmpty() == false &&
+                       lastClicked.isEmpty() == false) {
+                int tempID = clickedTile.getID();
+                clickedTile.setID(lastClicked.getID());
+                lastClicked.setID(tempID);
                 clickedTile.makeLive();
+                lastClicked.makeLive();
+                Main.game.repaint();
+                lastClicked = null;
+            // Case in which two empty game board positions are clicked
+            } else if (clickedTile.isEmpty() == true &&
+                    lastClicked.isEmpty() == true) {
+                clickedTile.reset();
+                lastClicked.reset();
+                lastClicked = null;
+            // Case in which one tile and one empty spot are clicked
+            } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
+                int tempID = clickedTile.getID();
+                clickedTile.setID(lastClicked.getID());
+                lastClicked.setID(tempID);
+                clickedTile.switchState();
+                lastClicked.switchState();
                 lastClicked = null;
             }
         }

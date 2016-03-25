@@ -17,7 +17,6 @@ package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
@@ -25,9 +24,8 @@ import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 /**
- * @author ????
+ * @author Colin Riley
  * @author Shaya Wolf
- * 
  */
 public class Tile extends JLabel implements MouseListener{
     // Avoid compiler complaints
@@ -35,43 +33,27 @@ public class Tile extends JLabel implements MouseListener{
 
     // Instance Variables
     private int ID;
-    private Point location;
     private boolean isEmpty; // True iff this tile is a blank game board space
+    protected Border border;
+    protected Border NoBorder;
 
     // Constructor -- Creates a Tile
     // Given -- NA
-    public Tile(int x, Point p) {
+    public Tile(int x) {
         ID = x;
-        location = p;
 
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
+        
 
-        Border border = BorderFactory.createLineBorder(Color.black, 1);
+        border = BorderFactory.createLineBorder(Color.black, 1);
+        NoBorder = BorderFactory.createLineBorder(Color.black, 0);
         setBorder(border);
         
         addMouseListener(this);
     };
-
-    // Get Location Method -- Returns location of tile
-    // Given -- NA
-    public Point getLoc() {
-        return location;
-    }
-
-    // Set Location Method -- Sets the location of tile
-    // Given -- x and y coordinates
-    public void setLoc(int x, int y) {
-        location.setLocation(x, y);
-    }
-
-    // Set Location Method -- Sets the location of tile
-    // Given -- New point
-    public void setLoc(Point p) {
-        location.setLocation(p);
-    }
 
     // Get ID Method -- Returns the ID of a tile
     // Given -- NA
@@ -96,6 +78,7 @@ public class Tile extends JLabel implements MouseListener{
     public void makeEmpty() {
         isEmpty = true;
         setBackground(Color.gray);
+        setBorder(border);
         setText("");
     }
     
@@ -103,7 +86,28 @@ public class Tile extends JLabel implements MouseListener{
     public void makeLive() {
         isEmpty = false;
         setBackground(Color.white);
-        setText(Integer.toString(ID));
+        setBorder(NoBorder);
+        setText("<html><span style='font-size:35px'>" + 
+                Integer.toString(ID) + "</span></html>");
+        setHorizontalAlignment(CENTER);
+    }
+    
+    // Switches tile between live and empty
+    public void switchState() {
+        if(isEmpty) makeLive();
+        else makeEmpty();
+    }
+    
+    // Makes the tile un-selected
+    public void reset() {
+        if(isEmpty) {
+            setBackground(Color.gray);
+            setBorder(border);
+        } else {
+            setBackground(Color.white);
+            setBorder(NoBorder);
+        }
+        repaint();
     }
 
     /**
@@ -112,8 +116,7 @@ public class Tile extends JLabel implements MouseListener{
      */
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        Main.game.setClicked(this);
-        setBackground(Color.green);
+        // Do nothing
     }
 
     @Override
@@ -128,11 +131,11 @@ public class Tile extends JLabel implements MouseListener{
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // Do nothing
+        Main.game.setClicked(this);
     }
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
-     // Do nothing
+        // Do nothing
     }
 }
