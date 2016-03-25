@@ -1,53 +1,50 @@
-
 /**
+ * Template:
  * @author Kim Buckner
+ * 
+ * Current Version:
  * @author James Scott
  * @author Colin Riley
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * Date: March 23, 2016
+ * @version March 25, 2016
  *
- * This is the actual "game". May/will have to make some major changes.
- * This is just a "hollow" shell.
+ * This is the actual "game".
+ * This class handles all game logic, as well as rendering the game board.
  *
- * When you get done, I should see the buttons at the top in the "play" area
- * (not a pull-down menu). The only one that should do anything is Quit.
+ * Three buttons at the top of the game board have been put in place.
+ * The only one that should do anything is Quit.
  *
- * Should also see something that shows where the 4x4 board and the "spare"
- * tiles will be when we get them stuffed in.
+ * The 4x4 grid of tiles is in place.
+ * The two side columns that hold unused tiles are in place.
  */
 
 package game;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GameWindow extends JFrame implements ActionListener {
-    /**
-     * because it is a serializable object, need this or javac complains a lot
-     */
+    // Avoid compiler complaints
     public static final long serialVersionUID = 1;
 
-    /*
-     * Here I declare some buttons and declare an array to hold the grid
-     * elements. But, you can do what you want.
+    /**
+     * @author Kim Buckner Declare Buttons
      */
-    public static JButton    newButton, resetButton, quitButton;
-    private int              startAt          = 0;
+    public static JButton newButton, resetButton, quitButton;
+    private int startAt = 0;
 
     /**
-     * Constructor sets the window name using super(), changes the layout, which
-     * you really need to read up on, and maybe you can see why I chose this
-     * one.
+     * @author Kim Buckner Constructor: Sets the window name using super() and
+     *         changes the layout
      *
      * @param s
+     *            is the window title
      */
-
     public GameWindow(String s) {
         super(s);
         GridBagLayout gbl = new GridBagLayout();
@@ -55,7 +52,7 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * For the buttons
+     * Top buttons
      * 
      * @param e
      *            is the ActionEvent
@@ -65,7 +62,6 @@ public class GameWindow extends JFrame implements ActionListener {
      *            instance is converted to a String object, then that object's
      *            equals() method is called.
      */
-
     public void actionPerformed(ActionEvent e) {
         if ("exit".equals(e.getActionCommand()))
             System.exit(0);
@@ -78,14 +74,10 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Establishes the initial board
      */
-
     public void setUp() {
-        // actually create the array for elements, make sure it is big enough
-
         // Need to play around with the dimensions and the grid x/y values
         // These constraints are going to be added to the pieces/parts I
         // stuff into the "GridBag".
-
         GridBagConstraints basic = new GridBagConstraints();
         basic.anchor = GridBagConstraints.FIRST_LINE_START;
         basic.gridx = 0;
@@ -95,22 +87,21 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipadx = 0;
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
-        
-        
+
         /**
          * @author Colin Riley (did work on tiles)
          */
-        // creates and array of tiles
+
+        // creates an array of tiles
         Tile[] tiles = new Tile[16];
-        
+
         // creates a border
-        Border border = BorderFactory.createLineBorder(Color.black, 1);
+        // Border border = BorderFactory.createLineBorder(Color.black, 1);
 
         // for loop to assign the 16 tiles
         for (int i = 1; i <= 16; ++i) {
-            String s = Integer.toString(i);
             Point p;
-            
+
             // sets the point of the first 8 tiles to the left side
             if (i <= 8) {
                 basic.gridx = 0;
@@ -118,38 +109,29 @@ public class GameWindow extends JFrame implements ActionListener {
 
                 p = new Point(0, 2 + i);
             }
-            
+
             // sets the points of the second 8 tiles to the right side
             else {
                 basic.gridx = 7;
                 basic.gridy = i - 6;
                 p = new Point(7, i - 6);
             }
-            
-            // creates a tile and adds it to the array, sets various label 
+
+            // creates a tile and adds it to the array, sets various label
             // properties
-            tiles[i - 1] = new Tile(i, s, p);
-            tiles[i - 1].setBackground(Color.white);
-            tiles[i - 1].setOpaque(true);
-            tiles[i - 1].setBorder(border);
-            tiles[i - 1].setPreferredSize(new Dimension(100, 100));
+            tiles[i - 1] = new Tile(i, p);
+            // tiles[i - 1].setBackground(Color.white);
+            // tiles[i - 1].setOpaque(true);
+            // tiles[i - 1].setBorder(border);
+            // tiles[i - 1].setPreferredSize(new Dimension(100, 100));
         }
-
         addElements(basic, tiles);
-
-        // Here I create 16 elements to put into my gameBoard
-
-        // Now I add each one, modifying the default grid x/y and add
-        // it along with the modified constraint
-
-        return;
-
     }
 
     /**
      * Used by setUp() to configure the grid and add it to the game board Takes
-     * a GridBagConstraints to position the buttons
-     * Also adds tiles to side panels.
+     * a GridBagConstraints to position the buttons Also adds tiles to side
+     * panels.
      * 
      * @author Colin Riley (reworked from first)
      * @param basic
@@ -190,15 +172,12 @@ public class GameWindow extends JFrame implements ActionListener {
                     JPanel panel = new JPanel();
                     panel.setBorder(border);
                     panel.setPreferredSize(new Dimension(100, 100));
-                    
-                    if(j ==0){
-                        panel.add(tiles[i-2]);
+
+                    if (j == 0) {
+                        panel.add(tiles[i - 2]);
+                    } else {
+                        panel.add(tiles[i - 2 + 8]);
                     }
-                    else{
-                        panel.add(tiles[i-2+8]);
-                    }
-                    
-                    
                     this.add(panel, basic);
                 }
 
@@ -256,8 +235,5 @@ public class GameWindow extends JFrame implements ActionListener {
 
         basic.gridx = 2;
         this.add(quitButton, basic);
-
-        return;
     }
-
 };
