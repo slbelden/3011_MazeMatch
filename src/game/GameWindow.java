@@ -37,6 +37,9 @@ public class GameWindow extends JFrame implements ActionListener {
      */
     public static JButton newButton, resetButton, quitButton;
     private int startAt = 0;
+    
+    // Data used in multiple places for game logic
+    public static Tile lastClicked;
 
     /**
      * @author Kim Buckner Constructor: Sets the window name using super() and
@@ -89,14 +92,12 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.fill = GridBagConstraints.RELATIVE;
 
         /**
-         * @author Colin Riley (did work on tiles)
+         * @author Colin Riley
+         * (did work on tiles)
          */
 
         // creates an array of tiles
         Tile[] tiles = new Tile[16];
-
-        // creates a border
-        // Border border = BorderFactory.createLineBorder(Color.black, 1);
 
         // for loop to assign the 16 tiles
         for (int i = 1; i <= 16; ++i) {
@@ -120,10 +121,7 @@ public class GameWindow extends JFrame implements ActionListener {
             // creates a tile and adds it to the array, sets various label
             // properties
             tiles[i - 1] = new Tile(i, p);
-            // tiles[i - 1].setBackground(Color.white);
-            // tiles[i - 1].setOpaque(true);
-            // tiles[i - 1].setBorder(border);
-            // tiles[i - 1].setPreferredSize(new Dimension(100, 100));
+            tiles[i - 1].makeLive();
         }
         addElements(basic, tiles);
     }
@@ -168,17 +166,11 @@ public class GameWindow extends JFrame implements ActionListener {
                     basic.gridx = j;
                     basic.gridy = i;
 
-                    // create a panel, set its size and border, then add to grid
-                    JPanel panel = new JPanel();
-                    panel.setBorder(border);
-                    panel.setPreferredSize(new Dimension(100, 100));
-
                     if (j == 0) {
-                        panel.add(tiles[i - 2]);
+                        this.add(tiles[i - 2], basic);
                     } else {
-                        panel.add(tiles[i - 2 + 8]);
+                        this.add(tiles[i - 2 + 8], basic);
                     }
-                    this.add(panel, basic);
                 }
 
                 // if the middle 16 cells are selected, add panels. These are
@@ -189,9 +181,10 @@ public class GameWindow extends JFrame implements ActionListener {
                     basic.gridy = i;
 
                     // create a panel, set its size and border, then add to grid
-                    JPanel panel = new JPanel();
+                    Tile panel = new Tile(i*j, null);
                     panel.setBorder(border);
                     panel.setPreferredSize(new Dimension(100, 100));
+                    panel.makeEmpty();
                     this.add(panel, basic);
                 }
             }
@@ -235,5 +228,23 @@ public class GameWindow extends JFrame implements ActionListener {
 
         basic.gridx = 2;
         this.add(quitButton, basic);
+    }
+    
+    /**
+     * @author Stephen Belden
+     * @param clickedTile is the tile that was most recently clicked
+     * 
+     * Handles the game logic for swapping tiles only after 2 different tiles
+     * have been clicked.
+     */
+    public void setClicked(Tile clickedTile){
+        if(lastClicked == null) lastClicked = clickedTile;
+        else {
+            // This resets the tile to it's default un-clciked state
+            if(lastClicked == clickedTile){
+                clickedTile.makeLive();
+                lastClicked = null;
+            }
+        }
     }
 };

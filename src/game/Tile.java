@@ -18,6 +18,8 @@ package game;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
@@ -27,13 +29,14 @@ import javax.swing.border.Border;
  * @author Shaya Wolf
  * 
  */
-public class Tile extends JLabel {
+public class Tile extends JLabel implements MouseListener{
     // Avoid compiler complaints
     private static final long serialVersionUID = 1L;
 
     // Instance Variables
     private int ID;
     private Point location;
+    private boolean isEmpty; // True iff this tile is a blank game board space
 
     // Constructor -- Creates a Tile
     // Given -- NA
@@ -43,13 +46,13 @@ public class Tile extends JLabel {
 
         setBackground(Color.white);
         setOpaque(true);
-        setText(Integer.toString(x));
+        setPreferredSize(new Dimension(100, 100));
+        setVisible(true);
 
         Border border = BorderFactory.createLineBorder(Color.black, 1);
         setBorder(border);
-
-        setPreferredSize(new Dimension(100, 100));
-        setVisible(true);
+        
+        addMouseListener(this);
     };
 
     // Get Location Method -- Returns location of tile
@@ -82,4 +85,54 @@ public class Tile extends JLabel {
         ID = x;
     }
 
+    /**
+     * @return empty
+     */
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
+    // Sets this tile up to display as an empty game board tile
+    public void makeEmpty() {
+        isEmpty = true;
+        setBackground(Color.gray);
+        setText("");
+    }
+    
+    // Sets this tile up to display as a real Tile
+    public void makeLive() {
+        isEmpty = false;
+        setBackground(Color.white);
+        setText(Integer.toString(ID));
+    }
+
+    /**
+     * @author Stephen Belden
+     * (wrote mouse and movement functions)
+     */
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
+        Main.game.setClicked(this);
+        setBackground(Color.green);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+        // Do nothing
+    }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+        // Do nothing
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+        // Do nothing
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+     // Do nothing
+    }
 }
