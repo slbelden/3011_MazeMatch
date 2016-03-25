@@ -37,6 +37,7 @@ public class Main {
 
         // have to override the default layout to reposition things!!!!!!!
         game.setSize(new Dimension(900, 1000));
+        game.setResizable(false);
 
         // So the debate here was, do I make the GameWindow object the game
         // or do I make main() the game, manipulating a window?

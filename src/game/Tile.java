@@ -29,13 +29,17 @@ import javax.swing.border.Border;
  */
 public class Tile extends JLabel implements MouseListener{
     // Avoid compiler complaints
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1;
 
     // Instance Variables
     private int ID;
     private boolean isEmpty; // True iff this tile is a blank game board space
-    protected Border border;
-    protected Border NoBorder;
+    
+    // Constants
+    private static final Border border
+            = BorderFactory.createLineBorder(Color.black, 1);
+    private static final Border NoBorder
+            = BorderFactory.createLineBorder(Color.black, 0);
 
     // Constructor -- Creates a Tile
     // Given -- NA
@@ -46,10 +50,7 @@ public class Tile extends JLabel implements MouseListener{
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
-        
 
-        border = BorderFactory.createLineBorder(Color.black, 1);
-        NoBorder = BorderFactory.createLineBorder(Color.black, 0);
         setBorder(border);
         
         addMouseListener(this);

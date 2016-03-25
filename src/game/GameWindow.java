@@ -180,7 +180,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * This doesn't need to be a function because it's only called once,
      * but it was part of the template so we're leaving it here for now
      */
-    public void addButtons(GridBagConstraints basic) {
+    private void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
         // set their text, size, and action command
 
