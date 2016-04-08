@@ -81,9 +81,47 @@ public class GameWindow extends JFrame implements ActionListener {
         if ("exit".equals(e.getActionCommand()))
             System.exit(0);
         if ("reset".equals(e.getActionCommand()))
-            System.out.println("reset pressed\n");
+            reset();//System.out.println("reset pressed\n");
         if ("new".equals(e.getActionCommand()))
-            System.out.println("new pressed\n");
+            newGame();//System.out.println("new pressed\n");
+    }
+    
+    public void newGame(){
+        Main.game.dispose();
+        Main.game = new GameWindow("Group E aMaze");
+
+        // have to override the default layout to reposition things!!!!!!!
+        Main.game.setSize(new Dimension(900, 1000));
+        Main.game.setResizable(false);
+
+        // So the debate here was, do I make the GameWindow object the game
+        // or do I make main() the game, manipulating a window?
+        // Should GameWindow methods know what they store?
+        // Answer is, have the "game" do it.
+        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Main.game.getContentPane().setBackground(Color.cyan);
+        Main.game.setUp();
+        
+        Main.game.setVisible(true);
+    }
+    
+    public void reset(){
+        Main.game.dispose();
+        Main.game = new GameWindow("Group E aMaze");
+
+        // have to override the default layout to reposition things!!!!!!!
+        Main.game.setSize(new Dimension(900, 1000));
+        Main.game.setResizable(false);
+
+        // So the debate here was, do I make the GameWindow object the game
+        // or do I make main() the game, manipulating a window?
+        // Should GameWindow methods know what they store?
+        // Answer is, have the "game" do it.
+        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Main.game.getContentPane().setBackground(Color.cyan);
+        Main.game.setUp();
+        
+        Main.game.setVisible(true);
     }
 
     /**
