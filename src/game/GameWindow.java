@@ -188,6 +188,7 @@ public class GameWindow extends JFrame implements ActionListener {
                      */
                     else if (count == numXY) {
                         fnum = convertToFloat(b);
+                        y = fnum;
                         Point p = new Point();
                         p.setLocation(x, y);
                         points[numPoints] = p;
@@ -282,7 +283,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     basic.gridy = i;
 
                     // create a panel, set its size and border, then add to grid
-                    Tile panel = new Tile(0);
+                    Tile panel = new Tile(-1);
                     panel.setPreferredSize(new Dimension(100, 100));
                     panel.makeEmpty();
                     this.add(panel, basic);

@@ -15,10 +15,15 @@
 
 package game;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Line2D;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
@@ -34,6 +39,7 @@ public class Tile extends JLabel implements MouseListener{
     // Instance Variables
     private int ID;
     private Line [] lines;
+    private int numLine;
     private boolean isEmpty; // True iff this tile is a blank game board space
     
     // Constants
@@ -46,12 +52,15 @@ public class Tile extends JLabel implements MouseListener{
     public Tile(int x, Line[] l) {
         ID = x;
         lines = l;
+        numLine = lines.length;
 
+        //System.out.println(lines.length);
+        
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
-
+        //paintComponent(this.getGraphics());
         setBorder(border);
         
         addMouseListener(this);
@@ -65,7 +74,7 @@ public class Tile extends JLabel implements MouseListener{
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
-
+        //paintComponent(this.getGraphics());
         setBorder(border);
         
         addMouseListener(this);
@@ -85,6 +94,26 @@ public class Tile extends JLabel implements MouseListener{
     
     public Line[] getLines(){
         return lines;
+    }
+    
+    public void paintComponent(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D) g;
+        super.paintComponent(g2);
+        if(lines != null){
+            g2.setStroke(new BasicStroke(3));
+            for(int i = 0; i < numLine; ++i){
+                float x0 = lines[i].getBegin().x,
+                      y0 = lines[i].getBegin().y,
+                      x1 = lines[i].getEnd().x,
+                      y1 = lines[i].getEnd().y;
+                Line2D line1 = new Line2D.Float(x0, y0, x1, y1);
+                g2.draw(line1);
+            }
+        }
+        
+        
+        
     }
 
     /**
