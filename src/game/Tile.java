@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 6, 2016
+ * @version April 7, 2016
  *
  * This class Handles tasks and data that are the same in every tile.
  */
@@ -17,6 +17,7 @@ package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
@@ -33,6 +34,7 @@ public class Tile extends JLabel implements MouseListener{
 
     // Instance Variables
     private int ID;
+    private Point [] points;
     private boolean isEmpty; // True iff this tile is a blank game board space
     
     // Constants
@@ -41,11 +43,25 @@ public class Tile extends JLabel implements MouseListener{
     private static final Border NoBorder
             = BorderFactory.createLineBorder(Color.black, 0);
 
-    // Constructor -- Creates a Tile
-    // Given -- NA
+    // Constructor for a tile, takes id and array of points
+    public Tile(int x, Point[] p) {
+        ID = x;
+        points = p;
+
+        setBackground(Color.white);
+        setOpaque(true);
+        setPreferredSize(new Dimension(100, 100));
+        setVisible(true);
+
+        setBorder(border);
+        
+        addMouseListener(this);
+    };
+    
+    // constructor for a tile takes only the id
     public Tile(int x) {
         ID = x;
-
+        
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
@@ -66,6 +82,10 @@ public class Tile extends JLabel implements MouseListener{
     // Given -- New ID
     public void setID(int x) {
         ID = x;
+    }
+    
+    public Point[] getPoints(){
+        return points;
     }
 
     /**

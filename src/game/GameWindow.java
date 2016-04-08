@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 6, 2016
+ * @version April 7, 2016
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
@@ -104,32 +107,139 @@ public class GameWindow extends JFrame implements ActionListener {
 
         /**
          * @author Colin Riley
-         * (did work on tiles)
+         * work on tiles, grid, and reading from file
          * @author Stepen Belden
          * (code cleanup)
          */
 
         // creates an array of tiles
-        Tile[] tiles = new Tile[16];
+        Tile[] tiles = null;
         
-        FileInputStream in = null;
+        // num and fnum are data containers
+        int num = 0;
+        float fnum = 0;
+        
+        // count is keeps track of what is being read in (tile #, # lines, etc)
+        int count = -1;
+        // how many lines does the tile have, how many points
+        int lineCount = 0;
+        int numPoints = 0;
+        
+        // is the loop reading an x value or a y
+        int countxy = 0;
+        
+        // the id of the tile
+        int tileId = 0;
+        
+        // used to create a point
+        float x = 0, y = 0;
+        
+        // an array of points
+        Point [] points = new Point[0];
+        
+        // creates a file and a path
         File file = new File("default.mze");
+        Path path = Paths.get(file.getPath());
         
+        // a 4 byte array, used for converting to ints or floats
+        byte[] b = new byte[4];
+        
+        // try catch for reading from the file
         try{
-            in = new FileInputStream(file);
+            // creates an array of bytes that is the entire file
+            byte[] full = Files.readAllBytes(path);
             
-            in.close();
+            // iterate through full in groups of four bytes
+            for(int i =0; i < file.length(); i+=4)
+            {
+                // iterate four bytes in those groups and set b to them
+                for(int j =0; j<4; ++j)
+                {
+                    b[j]= full[i+j];
+                }
+                
+                // the first value read is the number of tiles
+                // create the array of tiles with this
+                if(i ==0){
+                    num = convertToInt(b);
+                    tiles  = new Tile[num];
+                }
+                
+                else{
+                    // the loop is going over the id of the tile
+                    // convert the input and store in title
+                    if(count == -1)
+                    {
+                        num = convertToInt(b);
+                        tileId = num;
+                        ++count;
+                    }
+                    
+                    /* the loop is going over the number of sides a tile has
+                    *  convert input, set size of array, how many points
+                    *  will be read
+                    */ 
+                    else if(count == 0){
+                        num = convertToInt(b);
+                        numPoints =  num * 4;
+                        points = new Point[num*2];
+                        ++count;
+                    }
+
+                    /*
+                     * the last point for this tile is being read
+                     * create and set a point using the x and y values, y is
+                     * being read.
+                     * Create a new tile with the Id and points and makelive
+                     * reset counters
+                     */
+                    else if(count == numPoints){
+                        fnum = convertToFloat(b);
+                        Point p = new Point();
+                        p.setLocation(x, y);
+                        points[lineCount] = p;
+                        tiles[tileId] = new Tile(tileId, points);
+                        tiles[tileId].makeLive();
+                        countxy = 0;
+                        count = -1;
+                        lineCount = 0;
+                    }
+                    
+                    // reading points.  Convert input to a float
+                    else{
+                        fnum = convertToFloat(b);
+                        
+                        // if the count is even set x 
+                        if((countxy % 2) == 0){
+                            x = fnum;
+                            ++countxy;
+                        }
+                        
+                        // if the count is odd set y and set location of p.
+                        // add p to points
+                        else{
+                            y = fnum;
+                            Point p = new Point();
+                            p.setLocation(x, y);
+                            ++countxy;
+                            points[lineCount] = p;
+                            ++lineCount;
+                        }
+                        ++count;
+                    }
+                }
+            }           
         }
         catch (IOException ioe){  
             System.out.println("File not read\n");
-        }
+        } 
         
 
         // for loop to assign the 16 tiles
-        for (int i = 1; i <= 16; ++i) {
-            tiles[i - 1] = new Tile(i);
-            tiles[i - 1].makeLive();
-        }
+        //for (int i = 1; i <= 16; ++i) {
+            //tiles[i - 1] = new Tile(i);
+            //tiles[i - 1].makeLive();
+        //}
         
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
@@ -274,17 +384,25 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         }
     }
-
-    /*int read(byte [] b){
-        return 0;        
-    }*/
-    
-    public int readInt() throws IOException {
-        return 0;
-    }
-    
-    public float readFloat() throws IOException{
-        return 0;
+  
+    public int readInt(FileInputStream in) throws IOException {
+        byte[] b = new byte[4];
+        /*
+        for(int i = 0; i < 4; ++i)
+        {
+            b[i] = 00000000; 
+        }*/
+        //ByteBuffer bb = ByteBuffer.allocate(4);
+        int num;
+        in.read(b);
+        
+        //num = convertToInt(b);
+        
+        num = ByteBuffer.wrap(b).getInt();
+        
+        System.out.println(num + "\n");
+        
+        return num;
     }
     
     /**
@@ -295,167 +413,14 @@ public class GameWindow extends JFrame implements ActionListener {
      * 
      * @param value
      * @return
-     */
-    public static byte[] convertToByteArray(int value) {
-        byte[] bytes = new byte[4];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putInt(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertToByteArray(long value) {
-    
-        byte[] bytes = new byte[8];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putLong(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertToByteArray(short value) {
-    
-        byte[] bytes = new byte[2];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putShort(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertToByteArray(float value) {
-        byte[] bytes = new byte[4];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putFloat(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertToByteArray(double value) {
-        byte[] bytes = new byte[8];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putDouble(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertToByteArray(String value) {
-    
-        return value.getBytes();
-    
-    }
-    
-    public static byte[] convertToByteArray(boolean value) {
-        byte[] array = new byte[1];
-        array[0] = (byte)(value == true ? 1 : 0);
-        return array;
-    }
-    
-    public static byte convertToByte(byte[] array) {
-    
-        return array[0];
-    
-    }
-    
+     */   
     public static int convertToInt(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getInt();
-    }
-    
-    public static long convertToLong(byte[] array) {
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        return buffer.getLong();
-    }
-    
-    public static short convertToShort(byte[] array) {
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        return buffer.getShort();
-    }
-    
-    public static String convertToString(byte[] array) {
-        String value = new String(array);
-        return value;
-    }
-    
-    public static Object convertToValue(Class<?> aClass, byte[] inputArray) throws Exception {
-    
-        Object returnValue = null;
-        String className = aClass.getName();
-        if (className.equals(Integer.class.getName())) {
-            returnValue = new Integer(convertToInt(inputArray));
-        } else if (className.equals(String.class.getName()))    {
-            returnValue = convertToString(inputArray);
-        } else if (className.equals(Byte.class.getName())) {
-            returnValue = new Byte(convertToByte(inputArray));
-        } else if (className.equals(Long.class.getName())) {
-            returnValue = new Long(convertToLong(inputArray));
-        } else if (className.equals(Short.class.getName())) {
-            returnValue = new Short(convertToShort(inputArray));
-        } else if (className.equals(Boolean.class.getName())) {
-            returnValue = new Boolean(convertToBoolean(inputArray));
-        }else {
-            throw new Exception("Cannot convert object of type " + className);
-        }
-        return returnValue;
-    }
-    
-    public static byte[] convertToByteArray(Object object) throws Exception {
-    
-        byte[] returnArray = null;
-        Class<? extends Object> clazz = object.getClass();
-        String clazzName = clazz.getName();
-    
-        if (clazz.equals(Integer.class)) {
-            Integer aValue = (Integer)object;
-            int intValue = aValue.intValue();
-            returnArray = convertToByteArray(intValue);
-        } else if (clazz.equals(String.class)) {
-            String aValue = (String)object;
-            returnArray = convertToByteArray(aValue);
-        } else if (clazz.equals(Byte.class)) {
-            Byte aValue = (Byte)object;
-            byte byteValue = aValue.byteValue();
-            returnArray = convertToByteArray(byteValue);
-        } else if (clazz.equals(Long.class)) {
-            Long aValue = (Long)object;
-            long longValue = aValue.longValue();
-            returnArray = convertToByteArray(longValue);
-        } else if (clazz.equals(Short.class)) {
-            Short aValue = (Short)object;
-            short shortValue = aValue.shortValue();
-            returnArray = convertToByteArray(shortValue);
-        } else if (clazz.equals(Boolean.class)) {
-            Boolean aValue = (Boolean)object;
-            boolean booleanValue = aValue.booleanValue();
-            returnArray = convertToByteArray(booleanValue);
-        } else if (clazz.equals(Character.class)) {
-            Character aValue = (Character)object;
-            char charValue = aValue.charValue();
-            returnArray = convertToByteArray(charValue);
-        } else if (clazz.equals(Float.class)) {
-            Float aValue = (Float)object;
-            float floatValue = aValue.floatValue();
-            returnArray = convertToByteArray(floatValue);
-        } else if (clazz.equals(Double.class)) {
-            Double aValue = (Double)object;
-            double doubleValue = aValue.doubleValue();
-            returnArray = convertToByteArray(doubleValue);
-        } else {
-            throw new Exception("Cannot convert object of type " + clazzName);
-        }
-        return returnArray;
-    }
-    
-    public static boolean convertToBoolean(byte[] array) {
-        return (array[0] > 0 ? true : false );
-    }
-    
-    public static char convertToCharacter(byte[] array) {
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        return buffer.getChar();
-    }
-    
-    public static double convertToDouble(byte[] array) {
-        ByteBuffer buffer = ByteBuffer.wrap(array);
-        return buffer.getDouble();
-    }
+    } 
     
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
-    }
+    } 
 };
