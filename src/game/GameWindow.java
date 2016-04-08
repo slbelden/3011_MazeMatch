@@ -44,7 +44,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author Kim Buckner
      */
     public static JButton newButton, resetButton, quitButton;
-    
+
     // We don't use this and we don't know what it's for.
     // But it was in the template so we are leaving it here.
     // private int startAt = 0;
@@ -53,11 +53,9 @@ public class GameWindow extends JFrame implements ActionListener {
     public static Tile lastClicked;
 
     /**
-     * Constructor:
-     * Sets the window name using super() and
-     *         changes the layout
+     * Constructor: Sets the window name using super() and changes the layout
      * 
-     * @author Kim Buckner 
+     * @author Kim Buckner
      *
      * @param s
      *            is the window title
@@ -106,141 +104,139 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.fill = GridBagConstraints.RELATIVE;
 
         /**
-         * @author Colin Riley
-         * work on tiles, grid, and reading from file
-         * @author Stepen Belden
-         * (code cleanup)
+         * @author Colin Riley work on tiles, grid, and reading from file
+         * @author Stepen Belden (code cleanup)
          */
 
         // creates an array of tiles
         Tile[] tiles = null;
-        
+
         // num and fnum are data containers
         int num = 0;
         float fnum = 0;
-        
+
         // count is keeps track of what is being read in (tile #, # lines, etc)
         int count = -1;
         // how many lines does the tile have, how many points
-        int lineCount = 0;
         int numPoints = 0;
-        
+        int numXY = 0;
+
         // is the loop reading an x value or a y
         int countxy = 0;
-        
+
         // the id of the tile
         int tileId = 0;
-        
+
         // used to create a point
         float x = 0, y = 0;
-        
-        // an array of points
-        Point [] points = new Point[0];
-        
+
+        // an array of lines
+        Point[] points = null;
+
         // creates a file and a path
         File file = new File("default.mze");
         Path path = Paths.get(file.getPath());
-        
+
         // a 4 byte array, used for converting to ints or floats
         byte[] b = new byte[4];
-        
+
         // try catch for reading from the file
-        try{
+        try {
             // creates an array of bytes that is the entire file
             byte[] full = Files.readAllBytes(path);
-            
+
             // iterate through full in groups of four bytes
-            for(int i =0; i < file.length(); i+=4)
-            {
+            for (int i = 0; i < file.length(); i += 4) {
                 // iterate four bytes in those groups and set b to them
-                for(int j =0; j<4; ++j)
-                {
-                    b[j]= full[i+j];
+                for (int j = 0; j < 4; ++j) {
+                    b[j] = full[i + j];
                 }
-                
+
                 // the first value read is the number of tiles
                 // create the array of tiles with this
-                if(i ==0){
+                if (i == 0) {
                     num = convertToInt(b);
-                    tiles  = new Tile[num];
+                    tiles = new Tile[num];
                 }
-                
-                else{
+
+                else {
                     // the loop is going over the id of the tile
                     // convert the input and store in title
-                    if(count == -1)
-                    {
+                    if (count == -1) {
                         num = convertToInt(b);
                         tileId = num;
                         ++count;
                     }
-                    
-                    /* the loop is going over the number of sides a tile has
-                    *  convert input, set size of array, how many points
-                    *  will be read
-                    */ 
-                    else if(count == 0){
+
+                    /*
+                     * The loop is going over the number of lines a tile has.
+                     * It converts input, sets size of array, sets how many
+                     * lines will be read
+                     */
+                    else if (count == 0) {
                         num = convertToInt(b);
-                        numPoints =  num * 4;
+                        numXY = num * 4;
                         points = new Point[num*2];
                         ++count;
                     }
 
                     /*
-                     * the last point for this tile is being read
-                     * create and set a point using the x and y values, y is
-                     * being read.
-                     * Create a new tile with the Id and points and makelive
-                     * reset counters
+                     * the last point for this tile is being read create and set
+                     * a point using the x and y values, y is being read. Create
+                     * a new tile with the Id and points and makeLive() reset
+                     * counters
                      */
-                    else if(count == numPoints){
+                    else if (count == numXY) {
                         fnum = convertToFloat(b);
                         Point p = new Point();
                         p.setLocation(x, y);
-                        points[lineCount] = p;
-                        tiles[tileId] = new Tile(tileId, points);
+                        points[numPoints] = p;
+                        Line[] lines = new Line[numXY/4];
+                        int tempLineCount = 0;
+                        for (int k = 0; k < numXY/2; k+=2) {
+                            lines[tempLineCount] = new Line(points[k], points[k+1]);
+                            tempLineCount++;
+                        }
+                        tiles[tileId] = new Tile(tileId, lines);
                         tiles[tileId].makeLive();
                         countxy = 0;
                         count = -1;
-                        lineCount = 0;
+                        numPoints = 0;
                     }
-                    
-                    // reading points.  Convert input to a float
-                    else{
+
+                    // reading points. Convert input to a float
+                    else {
                         fnum = convertToFloat(b);
-                        
-                        // if the count is even set x 
-                        if((countxy % 2) == 0){
+
+                        // if the count is even set x
+                        if ((countxy % 2) == 0) {
                             x = fnum;
                             ++countxy;
                         }
-                        
+
                         // if the count is odd set y and set location of p.
                         // add p to points
-                        else{
+                        else {
                             y = fnum;
                             Point p = new Point();
                             p.setLocation(x, y);
                             ++countxy;
-                            points[lineCount] = p;
-                            ++lineCount;
+                            points[numPoints] = p;
+                            ++numPoints;
                         }
                         ++count;
                     }
                 }
-            }           
-        }
-        catch (IOException ioe){  
+            }
+        } catch (IOException ioe) {
             System.out.println("File not read\n");
-        } 
-        
+        }
 
         // for loop to assign the 16 tiles
-        //for (int i = 1; i <= 16; ++i) {
-            //tiles[i - 1] = new Tile(i);
-            //tiles[i - 1].makeLive();
-        //}
-        
+        // for (int i = 1; i <= 16; ++i) {
+        // tiles[i - 1] = new Tile(i);
+        // tiles[i - 1].makeLive();
+        // }
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
@@ -293,18 +289,19 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
             }
         }
+        //for (int t = 0; t < 16; t++) tiles[t].debugPrint();
     }
 
     /**
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
      * 
-     * @author Colin Riley
-     * (reworked from first)
+     * @author Colin Riley (reworked from first)
      * @param basic
      * 
-     * This doesn't need to be a function because it's only called once,
-     * but it was part of the template so we're leaving it here for now
+     *            This doesn't need to be a function because it's only called
+     *            once, but it was part of the template so we're leaving it here
+     *            for now
      */
     private void addButtons(GridBagConstraints basic) {
         // create new buttons for newButton, resetButton, and quitButton
@@ -339,9 +336,9 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * Handles the game logic for swapping tiles only after 2
-     * different tiles have been clicked.
-     *            
+     * Handles the game logic for swapping tiles only after 2 different tiles
+     * have been clicked.
+     * 
      * @author Stephen Belden
      * @param clickedTile
      *            is the tile that was most recently clicked
@@ -357,9 +354,9 @@ public class GameWindow extends JFrame implements ActionListener {
             if (lastClicked == clickedTile) {
                 clickedTile.reset();
                 lastClicked = null;
-            // Case in which two tiles are clicked
+                // Case in which two tiles are clicked
             } else if (clickedTile.isEmpty() == false &&
-                       lastClicked.isEmpty() == false) {
+                    lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
                 clickedTile.setID(lastClicked.getID());
                 lastClicked.setID(tempID);
@@ -367,13 +364,13 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked.makeLive();
                 Main.game.repaint();
                 lastClicked = null;
-            // Case in which two empty game board positions are clicked
+                // Case in which two empty game board positions are clicked
             } else if (clickedTile.isEmpty() == true &&
                     lastClicked.isEmpty() == true) {
                 clickedTile.reset();
                 lastClicked.reset();
                 lastClicked = null;
-            // Case in which one tile and one empty spot are clicked
+                // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
                 clickedTile.setID(lastClicked.getID());
@@ -384,43 +381,40 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         }
     }
-  
+
     public int readInt(FileInputStream in) throws IOException {
         byte[] b = new byte[4];
         /*
-        for(int i = 0; i < 4; ++i)
-        {
-            b[i] = 00000000; 
-        }*/
-        //ByteBuffer bb = ByteBuffer.allocate(4);
+         * for(int i = 0; i < 4; ++i) { b[i] = 00000000; }
+         */
+        // ByteBuffer bb = ByteBuffer.allocate(4);
         int num;
         in.read(b);
-        
-        //num = convertToInt(b);
-        
+
+        // num = convertToInt(b);
+
         num = ByteBuffer.wrap(b).getInt();
-        
+
         System.out.println(num + "\n");
-        
+
         return num;
     }
-    
+
     /**
-     * @author Java2s.com
-     * Following code taken from 
-     * http://www.java2s.com/Book/Java/Examples/
-     *              Convert_data_to_byte_array_back_and_forth.htm
+     * @author Java2s.com Following code taken from
+     *         http://www.java2s.com/Book/Java/Examples/
+     *         Convert_data_to_byte_array_back_and_forth.htm
      * 
      * @param value
      * @return
-     */   
+     */
     public static int convertToInt(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getInt();
-    } 
-    
+    }
+
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
-    } 
+    }
 };

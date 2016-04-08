@@ -26,8 +26,7 @@ import javax.swing.*;
  * @author Kim Buckner Modifications by the group as a whole
  */
 public class Main {
-    // Globally accessible things
-    
+    // Globally accessible:
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
 

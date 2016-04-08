@@ -17,7 +17,6 @@ package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
@@ -34,7 +33,7 @@ public class Tile extends JLabel implements MouseListener{
 
     // Instance Variables
     private int ID;
-    private Point [] points;
+    private Line [] lines;
     private boolean isEmpty; // True iff this tile is a blank game board space
     
     // Constants
@@ -43,10 +42,10 @@ public class Tile extends JLabel implements MouseListener{
     private static final Border NoBorder
             = BorderFactory.createLineBorder(Color.black, 0);
 
-    // Constructor for a tile, takes id and array of points
-    public Tile(int x, Point[] p) {
+    // Constructor for a tile, takes id and array of lines
+    public Tile(int x, Line[] l) {
         ID = x;
-        points = p;
+        lines = l;
 
         setBackground(Color.white);
         setOpaque(true);
@@ -84,8 +83,8 @@ public class Tile extends JLabel implements MouseListener{
         ID = x;
     }
     
-    public Point[] getPoints(){
-        return points;
+    public Line[] getLines(){
+        return lines;
     }
 
     /**
@@ -129,6 +128,13 @@ public class Tile extends JLabel implements MouseListener{
             setBorder(NoBorder);
         }
         repaint();
+    }
+    
+    public void debugPrint() {
+        System.out.println("Tile with ID: " + ID + " & isEmpty = "
+                            + (isEmpty ? "true" : "false")
+                            + " holds these lines:");
+        for (Line l : lines) l.debugPrint();
     }
 
     /**
