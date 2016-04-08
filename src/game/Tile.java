@@ -32,51 +32,45 @@ import javax.swing.border.Border;
  * @author Colin Riley
  * @author Shaya Wolf
  */
-public class Tile extends JLabel implements MouseListener{
+public class Tile extends JLabel implements MouseListener {
     // Avoid compiler complaints
     private static final long serialVersionUID = 1;
 
     // Instance Variables
     private int ID;
-    private Line [] lines;
-    private int numLine;
+    private Line[] lines;
     private boolean isEmpty; // True iff this tile is a blank game board space
-    
+
     // Constants
-    private static final Border border
-            = BorderFactory.createLineBorder(Color.black, 1);
-    private static final Border NoBorder
-            = BorderFactory.createLineBorder(Color.black, 0);
+    private static final Border border = BorderFactory.createLineBorder(
+            Color.black, 1);
+    private static final Border NoBorder = BorderFactory.createLineBorder(
+            Color.black, 0);
 
     // Constructor for a tile, takes id and array of lines
     public Tile(int x, Line[] l) {
         ID = x;
         lines = l;
-        numLine = lines.length;
 
-        //System.out.println(lines.length);
-        
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
-        //paintComponent(this.getGraphics());
         setBorder(border);
-        
+
         addMouseListener(this);
     };
-    
+
     // constructor for a tile takes only the id
     public Tile(int x) {
         ID = x;
-        
+
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
         setVisible(true);
-        //paintComponent(this.getGraphics());
         setBorder(border);
-        
+
         addMouseListener(this);
     };
 
@@ -91,29 +85,33 @@ public class Tile extends JLabel implements MouseListener{
     public void setID(int x) {
         ID = x;
     }
-    
-    public Line[] getLines(){
+
+    public Line[] getLines() {
         return lines;
     }
     
-    public void paintComponent(Graphics g)
-    {
+    public void setLines(Line[] l){
+        lines = l;
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        if(Main.verbose) System.out.println("Attempting to redraw tile "
+                                            + ID + "...");
         Graphics2D g2 = (Graphics2D) g;
         super.paintComponent(g2);
-        if(lines != null){
+        if (lines != null) {
             g2.setStroke(new BasicStroke(3));
-            for(int i = 0; i < numLine; ++i){
+            for (int i = 0; i < lines.length; ++i) {
                 float x0 = lines[i].getBegin().x,
-                      y0 = lines[i].getBegin().y,
-                      x1 = lines[i].getEnd().x,
-                      y1 = lines[i].getEnd().y;
+                        y0 = lines[i].getBegin().y,
+                        x1 = lines[i].getEnd().x,
+                        y1 = lines[i].getEnd().y;
                 Line2D line1 = new Line2D.Float(x0, y0, x1, y1);
                 g2.draw(line1);
             }
         }
-        
-        
-        
+        if(Main.verbose) System.out.println("Tile " + ID + " was repainted");
     }
 
     /**
@@ -130,26 +128,28 @@ public class Tile extends JLabel implements MouseListener{
         setBorder(border);
         setText("");
     }
-    
+
     // Sets this tile up to display as a real Tile
     public void makeLive() {
         isEmpty = false;
         setBackground(Color.white);
         setBorder(NoBorder);
-        setText("<html><span style='font-size:35px'>" + 
-                Integer.toString(ID) + "</span></html>");
+        if(Main.verbose) {
+            setText("<html><span style='font-size:35px'>" +
+                    Integer.toString(ID) + "</span></html>");
+        }
         setHorizontalAlignment(CENTER);
     }
-    
+
     // Switches tile between live and empty
     public void switchState() {
-        if(isEmpty) makeLive();
+        if (isEmpty) makeLive();
         else makeEmpty();
     }
-    
+
     // Makes the tile un-selected
     public void reset() {
-        if(isEmpty) {
+        if (isEmpty) {
             setBackground(Color.gray);
             setBorder(border);
         } else {
@@ -158,17 +158,17 @@ public class Tile extends JLabel implements MouseListener{
         }
         repaint();
     }
-    
+
     public void debugPrint() {
         System.out.println("Tile with ID: " + ID + " & isEmpty = "
-                            + (isEmpty ? "true" : "false")
-                            + " holds these lines:");
-        for (Line l : lines) l.debugPrint();
+                + (isEmpty ? "true" : "false")
+                + " holds these lines:");
+        for (Line l : lines)
+            l.debugPrint();
     }
 
     /**
-     * @author Stephen Belden
-     * (wrote mouse and movement functions)
+     * @author Stephen Belden (wrote mouse and movement functions)
      */
     @Override
     public void mouseClicked(MouseEvent arg0) {

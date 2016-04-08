@@ -169,22 +169,23 @@ public class GameWindow extends JFrame implements ActionListener {
                     }
 
                     /*
-                     * The loop is going over the number of lines a tile has.
-                     * It converts input, sets size of array, sets how many
-                     * lines will be read
+                     * The loop is going over the number of lines a tile has. It
+                     * converts input, sets size of array, sets how many lines
+                     * will be read
                      */
                     else if (count == 0) {
                         num = convertToInt(b);
                         numXY = num * 4;
-                        points = new Point[num*2];
+                        points = new Point[num * 2];
                         ++count;
                     }
 
                     /*
-                     * the last point for this tile is being read create and set
-                     * a point using the x and y values, y is being read. Create
-                     * a new tile with the Id and points and makeLive() reset
-                     * counters
+                     * Here, the last point for this tile is being read. This
+                     * creates and sets a point using the x and y values,
+                     * y is being read. A new tile with the Id and points is
+                     * constructed, and makeLive() is called.
+                     * Counters are reset
                      */
                     else if (count == numXY) {
                         fnum = convertToFloat(b);
@@ -192,10 +193,14 @@ public class GameWindow extends JFrame implements ActionListener {
                         Point p = new Point();
                         p.setLocation(x, y);
                         points[numPoints] = p;
-                        Line[] lines = new Line[numXY/4];
+                        Line[] lines = new Line[numXY / 4];
                         int tempLineCount = 0;
-                        for (int k = 0; k < numXY/2; k+=2) {
-                            lines[tempLineCount] = new Line(points[k], points[k+1]);
+                        if(Main.verbose) System.out.println("Constructing "
+                                + lines.length + " lines from " + numXY
+                                + " float values");
+                        for (int k = 0; k < numXY / 2; k += 2) {
+                            lines[tempLineCount] = 
+                                    new Line(points[k],points[k + 1]);
                             tempLineCount++;
                         }
                         tiles[tileId] = new Tile(tileId, lines);
@@ -232,6 +237,8 @@ public class GameWindow extends JFrame implements ActionListener {
         } catch (IOException ioe) {
             System.out.println("File not read\n");
         }
+        
+        if(Main.verbose) for (Tile t : tiles) t.debugPrint();
 
         // for loop to assign the 16 tiles
         // for (int i = 1; i <= 16; ++i) {
@@ -290,7 +297,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
             }
         }
-        //for (int t = 0; t < 16; t++) tiles[t].debugPrint();
+        // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
     }
 
     /**
@@ -359,8 +366,11 @@ public class GameWindow extends JFrame implements ActionListener {
             } else if (clickedTile.isEmpty() == false &&
                     lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
+                Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
+                clickedTile.setLines(lastClicked.getLines());
                 lastClicked.setID(tempID);
+                lastClicked.setLines(tempLines);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
                 Main.game.repaint();
@@ -374,8 +384,11 @@ public class GameWindow extends JFrame implements ActionListener {
                 // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
+                Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
+                clickedTile.setLines(lastClicked.getLines());
                 lastClicked.setID(tempID);
+                lastClicked.setLines(tempLines);
                 clickedTile.switchState();
                 lastClicked.switchState();
                 lastClicked = null;
