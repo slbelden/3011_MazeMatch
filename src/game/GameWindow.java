@@ -87,22 +87,7 @@ public class GameWindow extends JFrame implements ActionListener {
     }
     
     public void newGame(){
-        Main.game.dispose();
-        Main.game = new GameWindow("Group E aMaze");
-
-        // have to override the default layout to reposition things!!!!!!!
-        Main.game.setSize(new Dimension(900, 1000));
-        Main.game.setResizable(false);
-
-        // So the debate here was, do I make the GameWindow object the game
-        // or do I make main() the game, manipulating a window?
-        // Should GameWindow methods know what they store?
-        // Answer is, have the "game" do it.
-        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Main.game.getContentPane().setBackground(Color.cyan);
-        Main.game.setUp();
-        
-        Main.game.setVisible(true);
+        reset();
     }
     
     public void reset(){
@@ -432,24 +417,6 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked = null;
             }
         }
-    }
-
-    public int readInt(FileInputStream in) throws IOException {
-        byte[] b = new byte[4];
-        /*
-         * for(int i = 0; i < 4; ++i) { b[i] = 00000000; }
-         */
-        // ByteBuffer bb = ByteBuffer.allocate(4);
-        int num;
-        in.read(b);
-
-        // num = convertToInt(b);
-
-        num = ByteBuffer.wrap(b).getInt();
-
-        System.out.println(num + "\n");
-
-        return num;
     }
 
     /**
