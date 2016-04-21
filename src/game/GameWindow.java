@@ -27,12 +27,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
@@ -261,13 +263,9 @@ public class GameWindow extends JFrame implements ActionListener {
             System.out.println("File not read\n");
         }
         
+        ShuffleArray(tiles);
+        
         if(Main.verbose) for (Tile t : tiles) t.debugPrint();
-
-        // for loop to assign the 16 tiles
-        // for (int i = 1; i <= 16; ++i) {
-        // tiles[i - 1] = new Tile(i);
-        // tiles[i - 1].makeLive();
-        // }
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
@@ -365,6 +363,29 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.gridx = 2;
         this.add(quitButton, basic);
     }
+    
+    // 
+    private void ShuffleArray(Tile[] tiles)
+    {
+        // shuffle the tile array.  Create a list with the array then use
+        // shuffle.  Then convert back.
+        List<Tile> tList = Arrays.asList(tiles);
+        Collections.shuffle(tList);
+        tiles = (Tile[]) tList.toArray();
+        
+        // create an array of objects/ints for orientation.  create list from
+        // this and then convert back to array.
+        Object[] orientArray = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3};
+        List<Object> orientList = Arrays.asList(orientArray);
+        Collections.shuffle(orientList);
+        orientArray = orientList.toArray();
+        
+        // sets the orientation for the tiles.
+        for(int i = 0; i <  orientArray.length; ++i){
+            tiles[i].setStart_Orient((int) orientArray[i]);
+        }
+        
+    }
 
     /**
      * Handles the game logic for swapping tiles only after 2 different tiles
@@ -389,11 +410,14 @@ public class GameWindow extends JFrame implements ActionListener {
             } else if (clickedTile.isEmpty() == false &&
                     lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
+                int tempOrient = clickedTile.getOrient();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
+                clickedTile.setOrient(lastClicked.getOrient());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
+                lastClicked.setOrient(tempOrient);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
                 Main.game.repaint();
@@ -407,11 +431,14 @@ public class GameWindow extends JFrame implements ActionListener {
                 // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
+                int tempOrient = clickedTile.getOrient();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
+                clickedTile.setOrient(lastClicked.getOrient());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
+                lastClicked.setOrient(tempOrient);
                 clickedTile.switchState();
                 lastClicked.switchState();
                 lastClicked = null;
