@@ -22,10 +22,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 /**
@@ -34,18 +36,22 @@ import javax.swing.border.Border;
  */
 public class Tile extends JLabel implements MouseListener {
     // Avoid compiler complaints
-    private static final long serialVersionUID = 1;
+    private static final long   serialVersionUID = 1;
 
     // Instance Variables
-    private int ID;
-    private Line[] lines;
-    private boolean isEmpty; // True iff this tile is a blank game board space
+    private int                 ID;
+    private Line[]              lines;
+    private boolean             isEmpty;  // True iff this tile is a blank game
+                                          // board space
+    private int                 orient; // 0-3 multiplied by 90 when used
+    private int                 start_orient; // starting orientation for reset
+    private int                 start_loc;  // starting location, for reset
 
     // Constants
-    private static final Border border = BorderFactory.createLineBorder(
-            Color.black, 1);
-    private static final Border NoBorder = BorderFactory.createLineBorder(
-            Color.black, 0);
+    private static final Border border           = BorderFactory
+            .createLineBorder(Color.black, 1);
+    private static final Border NoBorder         = BorderFactory
+            .createLineBorder(Color.black, 0);
 
     // Constructor for a tile, takes id and array of lines
     public Tile(int x, Line[] l) {
@@ -86,32 +92,74 @@ public class Tile extends JLabel implements MouseListener {
         ID = x;
     }
 
+    public int getOrient() {
+        return orient;
+    }
+
+    public void setOrient(int x) {
+        orient = x;
+    }
+    
+    public int getStart_Orient() {
+        return start_orient;
+    }
+
+    public void setStart_Orient(int x) {
+        start_orient = x;
+        orient = start_orient;
+    }
+    
+    public int getStart_Loc() {
+        return start_loc;
+    }
+
+    public void setStart_Loc(int x) {
+        start_loc = x;
+    }
+
     public Line[] getLines() {
         return lines;
     }
-    
-    public void setLines(Line[] l){
+
+    public void setLines(Line[] l) {
         lines = l;
     }
 
+    /**
+     * @author Colin Riley
+     */
     @Override
     public void paintComponent(Graphics g) {
-        if(Main.verbose) System.out.println("Attempting to redraw tile "
-                                            + ID + "...");
+        if (Main.verbose)
+            System.out.println("Attempting to redraw tile " + ID + "...");
         Graphics2D g2 = (Graphics2D) g;
         super.paintComponent(g2);
         if (lines != null) {
             g2.setStroke(new BasicStroke(3));
             for (int i = 0; i < lines.length; ++i) {
-                float x0 = lines[i].getBegin().x,
-                        y0 = lines[i].getBegin().y,
-                        x1 = lines[i].getEnd().x,
-                        y1 = lines[i].getEnd().y;
+                float x0 = lines[i].getBegin().x, y0 = lines[i].getBegin().y,
+                        x1 = lines[i].getEnd().x, y1 = lines[i].getEnd().y;
                 Line2D line1 = new Line2D.Float(x0, y0, x1, y1);
                 g2.draw(line1);
             }
         }
-        if(Main.verbose) System.out.println("Tile " + ID + " was repainted");
+        if (Main.verbose)
+            System.out.println("Tile " + ID + " was repainted");
+    }
+
+    /**
+     * @author Colin Riley
+     */
+    public void rotateTile() {
+        if (orient < 3)
+            ++orient;
+        else
+            orient = 0;
+        Graphics2D g2 = (Graphics2D) this.getGraphics();
+        AffineTransform at = g2.getTransform();
+        at.rotate(Math.toRadians(orient * 90), 50, 50);
+        g2.setTransform(at);
+        paintComponent(g2);
     }
 
     /**
@@ -134,17 +182,19 @@ public class Tile extends JLabel implements MouseListener {
         isEmpty = false;
         setBackground(Color.white);
         setBorder(NoBorder);
-        if(Main.verbose) {
-            setText("<html><span style='font-size:35px'>" +
-                    Integer.toString(ID) + "</span></html>");
+        if (Main.verbose) {
+            setText("<html><span style='font-size:35px'>" + Integer.toString(ID)
+                    + "</span></html>");
         }
         setHorizontalAlignment(CENTER);
     }
 
     // Switches tile between live and empty
     public void switchState() {
-        if (isEmpty) makeLive();
-        else makeEmpty();
+        if (isEmpty)
+            makeLive();
+        else
+            makeEmpty();
     }
 
     // Makes the tile un-selected
@@ -161,8 +211,7 @@ public class Tile extends JLabel implements MouseListener {
 
     public void debugPrint() {
         System.out.println("Tile with ID: " + ID + " & isEmpty = "
-                + (isEmpty ? "true" : "false")
-                + " holds these lines:");
+                + (isEmpty ? "true" : "false") + " holds these lines:");
         for (Line l : lines)
             l.debugPrint();
     }
@@ -187,7 +236,12 @@ public class Tile extends JLabel implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        Main.game.setClicked(this);
+        if (SwingUtilities.isLeftMouseButton(arg0)) {
+            Main.game.setClicked(this);
+        } else if (SwingUtilities.isRightMouseButton(arg0)) {
+            rotateTile();
+        }
+
     }
 
     @Override
