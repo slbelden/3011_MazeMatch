@@ -309,6 +309,11 @@ public class GameWindow extends JFrame implements ActionListener {
                     // set the cell
                     basic.gridx = j;
                     basic.gridy = i;
+                    
+                 // Computer Screen 
+                    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+                    basic.gridheight = (int) screenDim.getHeight();
+                    basic.gridwidth = (int) screenDim.getWidth();
 
                     // create a panel, set its size and border, then add to grid
                     Tile panel = new Tile(-1);
