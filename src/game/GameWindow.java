@@ -466,16 +466,20 @@ public class GameWindow extends JFrame implements ActionListener {
     {
         // Orient the Tile
         if (clickedTile.getOrient() < 3)
+        {
             clickedTile.incOrient();
+        }
         else
+        {
             clickedTile.setOrient(0);
-        
+        }
         // Rotate the Graphic
-        Graphics2D g2 = (Graphics2D) clickedTile.getGraphics();
-        AffineTransform at = g2.getTransform();
-        at.rotate(Math.toRadians(clickedTile.getOrient()* 90), 50, 50);
-        g2.setTransform(at);
-        clickedTile.paintComponent(g2);
+        //Graphics2D g2 = (Graphics2D) clickedTile.getGraphics();
+        //AffineTransform at = g2.getTransform();
+       // at.rotate(Math.toRadians(clickedTile.getOrient()* 90), 50, 50);
+        //g2.setTransform(at);
+       // clickedTile.paintComponent(g2);
+        repaint();
     }
 
     /**

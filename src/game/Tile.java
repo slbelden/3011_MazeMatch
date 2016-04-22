@@ -158,15 +158,22 @@ public class Tile extends JLabel implements MouseListener {
      * @author Colin Riley
      */
     public void rotateTile() {
+    	// if orientation is less than 270 deg
         if (orient < 3)
+        {
             ++orient;
+        }
+        // orientation is 270, set it back to 0 deg
         else
+        {
             orient = 0;
+        }
         Graphics2D g2 = (Graphics2D) this.getGraphics();
         AffineTransform at = g2.getTransform();
-        at.rotate(Math.toRadians(orient * 90), 50, 50);
+        at.rotate(Math.toDegrees(orient*90));
         g2.setTransform(at);
-        paintComponent(g2);
+        //repaint();
+       paintComponent(g2);
     }
 
     /**
