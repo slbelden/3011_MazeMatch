@@ -49,6 +49,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
     // Data used for game logic
     public static Tile lastClicked;
+    
     // creates an array of tiles
     public Tile[] tiles = null;
     public Tile[] grid = new Tile[16];
@@ -106,61 +107,23 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * @author Colin Riley
      */
-    public void reset(){
-        // creates variables and arrays to store values
-        int emptyID = -1;
-        int ID = -1;
-        int loc = -1;
-        Line[] emptyLines = null;
-        Line[] tempLines = null;
-        Tile[] tempTiles = new Tile[tiles.length];
-        
-        // initializes the elements tempTiles array
-        for(int i =0; i< tempTiles.length; ++i){
-            tempTiles[i] = new Tile(-1);
-        }
-        
-        // loops from 0 to the number of tiles
-        // used to fill the tempTiles array with the Tiles from the side
-        // and the grid
-        for(int i = 0; i < tiles.length; ++i){
-            if(grid[i].getID() != -1){
-                loc = grid[i].getStart_Loc();
-                ID = grid[i].getID();
-                tempLines = grid[i].getLines();
-                tempTiles[loc] = new Tile(ID, tempLines);
-            }
-            if (tiles[i].getID() != -1){
-                //tempTiles[tiles[i].getStart_Loc()] = tiles[i];
-                loc = tiles[i].getStart_Loc();
-                ID = tiles[i].getID();
-                tempLines = tiles[i].getLines();
-                tempTiles[loc] = new Tile(ID, tempLines);
-                //tempTiles[loc].setOrient(tiles[i].getStart_Orient());
-                //System.out.println("loc " + tiles[i].getStart_Loc()+" ID " + tiles[i].getID());
-            }
-        }
+    public void reset(){ 
+        Main.game.dispose();
+        Main.game = new GameWindow("Group E aMaze");
 
-        // sets the elements of tiles to the elements of tempTiles
-        for(int i = 0; i < tiles.length; ++i){
-            tempLines = tempTiles[i].getLines();
-            tiles[i].setID(tempTiles[i].getID());
-            tiles[i].setLines(tempLines);
-            tiles[i].makeLive();
-        }
+        Main.game.setSize(new Dimension(900, 1000));
+        Main.game.setResizable(false);
         
-        // clears the grid
-        for(int i =0;i<grid.length;++i){
-            grid[i].setID(emptyID);
-            grid[i].setLines(emptyLines);
-            grid[i].makeEmpty();
-        }              
+        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Main.game.getContentPane().setBackground(Color.cyan);
+        Main.game.setUp(false);
+        Main.game.setVisible(true);
     }
 
     /**
      * Establishes the initial board
      */
-    public void setUp(Boolean shuffle) {
+    public void setUp(Boolean newGame) {
         // Need to play around with the dimensions and the grid x/y values
         // These constraints are going to be added to the pieces/parts I
         // stuff into the "GridBag".
@@ -262,10 +225,7 @@ public class GameWindow extends JFrame implements ActionListener {
                         p.setLocation(x, y);
                         points[numPoints] = p;
                         Line[] lines = new Line[numXY / 4];
-                        int tempLineCount = 0;
-                        if(Main.verbose) System.out.println("Constructing "
-                                + lines.length + " lines from " + numXY
-                                + " float values");
+                        int tempLineCount = 0;                        
                         for (int k = 0; k < numXY / 2; k += 2) {
                             lines[tempLineCount] = 
                                     new Line(points[k],points[k + 1]);
@@ -306,15 +266,20 @@ public class GameWindow extends JFrame implements ActionListener {
             System.out.println("File not read\n");
         }
         
-        // shuffles the order of the tiles
-        if (shuffle == true)
+        // Sets the initial tile state for the reset button
+        if (newGame == true)
         {
             shuffleArray(tiles);
+            for (int i = 0; i < tiles.length; i++) {
+                Main.initialTileState[i] = new Tile(tiles[i]);
+                Main.initialTileState[i].makeLive();
+            }
         }
-        
-        // sets the start location of the tiles
-        for(int i = 0; i < tiles.length; ++i){
-            tiles[i].setStart_Loc(i);
+        else {
+            for (int i = 0; i < tiles.length; i++) {
+                tiles[i] = new Tile(Main.initialTileState[i]);
+                tiles[i].makeLive();
+            }
         }
         
         if(Main.verbose) for (Tile t : tiles) t.debugPrint();
@@ -446,12 +411,13 @@ public class GameWindow extends JFrame implements ActionListener {
         // this and then convert back to array.
         Object[] orientArray = {0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3};
         List<Object> orientList = Arrays.asList(orientArray);
+        
         Collections.shuffle(orientList);
         orientArray = orientList.toArray();
         
         // sets the orientation for the tiles.
         for(int i = 0; i <  orientArray.length; ++i){
-            tiles[i].setStart_Orient((int) orientArray[i]);
+            tiles[i].setOrient((int) orientArray[i]);
         }
         
     }
@@ -498,16 +464,13 @@ public class GameWindow extends JFrame implements ActionListener {
                     lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
                 int tempOrient = clickedTile.getOrient();
-                int tempLoc = clickedTile.getStart_Loc();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
-                clickedTile.setStart_Loc(lastClicked.getStart_Loc());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
-                lastClicked.setStart_Loc(tempLoc);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
                 Main.game.repaint();
@@ -522,16 +485,13 @@ public class GameWindow extends JFrame implements ActionListener {
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
                 int tempOrient = clickedTile.getOrient();
-                int tempLoc = clickedTile.getStart_Loc();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
-                clickedTile.setStart_Loc(lastClicked.getStart_Loc());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
-                lastClicked.setOrient(tempLoc);
                 clickedTile.switchState();
                 lastClicked.switchState();
                 lastClicked = null;

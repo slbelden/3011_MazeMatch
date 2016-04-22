@@ -47,7 +47,7 @@ public class Tile extends JLabel implements MouseListener {
 
     // Constants
     private static final Border border           = BorderFactory
-            .createLineBorder(Color.black, 1);
+            .createLineBorder(Color.white, 1);
     private static final Border NoBorder         = BorderFactory
             .createLineBorder(Color.black, 0);
 
@@ -64,6 +64,22 @@ public class Tile extends JLabel implements MouseListener {
 
         addMouseListener(this);
     };
+    
+    // copy constructor
+    public Tile(Tile in) {
+        ID = in.ID;
+        lines = in.lines;
+        isEmpty = in.isEmpty;
+        orient = in.orient;
+        
+        setBackground(Color.white);
+        setOpaque(true);
+        setPreferredSize(new Dimension(100, 100));
+        setVisible(true);
+        setBorder(border);
+
+        addMouseListener(this);
+    }
 
     // constructor for a tile takes only the id
     public Tile(int x) {
