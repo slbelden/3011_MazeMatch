@@ -26,7 +26,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,10 +46,6 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author Kim Buckner
      */
     public static JButton newButton, resetButton, quitButton;
-
-    // We don't use this and we don't know what it's for.
-    // But it was in the template so we are leaving it here.
-    // private int startAt = 0;
 
     // Data used for game logic
     public static Tile lastClicked;
@@ -133,9 +128,9 @@ public class GameWindow extends JFrame implements ActionListener {
                 loc = grid[i].getStart_Loc();
                 ID = grid[i].getID();
                 tempLines = grid[i].getLines();
-                tempTiles[loc] = new Tile(ID, tempLines);                
+                tempTiles[loc] = new Tile(ID, tempLines);
             }
-            if(tiles[i].getID() != -1){
+            if (tiles[i].getID() != -1){
                 tempTiles[tiles[i].getStart_Loc()] = tiles[i];
             }
         }
@@ -318,9 +313,6 @@ public class GameWindow extends JFrame implements ActionListener {
         
         if(Main.verbose) for (Tile t : tiles) t.debugPrint();
         
-        // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
-        
-        
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -335,8 +327,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     { centerTiles(basic, i, j); }
             }
         }
-    // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
-}
+ }
 
     // if anything besides the first 3 cells of row 1 or any of row
     // 2 are selected add empty cells to the board
@@ -376,12 +367,12 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.gridx = j;
         basic.gridy = i;
         
-        /*
+        
         // Computer Screen 
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         basic.gridheight = (int) screenDim.getHeight();
         basic.gridwidth = (int) screenDim.getWidth();
-    */
+    
         // create a panel, set its size and border, then add to grid
         Tile panel = new Tile(-1);
         panel.setPreferredSize(new Dimension(100, 100));
@@ -473,12 +464,6 @@ public class GameWindow extends JFrame implements ActionListener {
         {
             clickedTile.setOrient(0);
         }
-        // Rotate the Graphic
-        //Graphics2D g2 = (Graphics2D) clickedTile.getGraphics();
-        //AffineTransform at = g2.getTransform();
-       // at.rotate(Math.toRadians(clickedTile.getOrient()* 90), 50, 50);
-        //g2.setTransform(at);
-       // clickedTile.paintComponent(g2);
         repaint();
     }
 
