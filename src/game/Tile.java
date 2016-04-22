@@ -22,7 +22,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 import javax.swing.BorderFactory;
@@ -32,7 +31,6 @@ import javax.swing.border.Border;
 
 /**
  * @author Colin Riley
- * @author Shaya Wolf
  */
 public class Tile extends JLabel implements MouseListener {
     // Avoid compiler complaints
@@ -100,6 +98,10 @@ public class Tile extends JLabel implements MouseListener {
         orient = x;
     }
     
+    public void incOrient(){
+    	orient++;
+    }
+    
     public int getStart_Orient() {
         return start_orient;
     }
@@ -145,21 +147,6 @@ public class Tile extends JLabel implements MouseListener {
         }
         if (Main.verbose)
             System.out.println("Tile " + ID + " was repainted");
-    }
-
-    /**
-     * @author Colin Riley
-     */
-    public void rotateTile() {
-        if (orient < 3)
-            ++orient;
-        else
-            orient = 0;
-        Graphics2D g2 = (Graphics2D) this.getGraphics();
-        AffineTransform at = g2.getTransform();
-        at.rotate(Math.toRadians(orient * 90), 50, 50);
-        g2.setTransform(at);
-        paintComponent(g2);
     }
 
     /**
@@ -220,6 +207,14 @@ public class Tile extends JLabel implements MouseListener {
      * @author Stephen Belden (wrote mouse and movement functions)
      */
     @Override
+    public void mousePressed(MouseEvent arg0) {
+        if (SwingUtilities.isLeftMouseButton(arg0)) 
+            { Main.game.setLeftClicked(this); }
+        else if (SwingUtilities.isRightMouseButton(arg0)) 
+        	{ Main.game.setRightClicked(this); }
+    }
+    
+    @Override
     public void mouseClicked(MouseEvent arg0) {
         // Do nothing
     }
@@ -232,16 +227,6 @@ public class Tile extends JLabel implements MouseListener {
     @Override
     public void mouseExited(MouseEvent arg0) {
         // Do nothing
-    }
-
-    @Override
-    public void mousePressed(MouseEvent arg0) {
-        if (SwingUtilities.isLeftMouseButton(arg0)) {
-            Main.game.setClicked(this);
-        } else if (SwingUtilities.isRightMouseButton(arg0)) {
-            rotateTile();
-        }
-
     }
 
     @Override

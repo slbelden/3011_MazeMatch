@@ -49,7 +49,7 @@ public class Main {
         // Answer is, have the "game" do it.
         game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         game.getContentPane().setBackground(Color.cyan);
-        game.setUp();
+        game.setUp(true);
 
         game.setVisible(true);
 
