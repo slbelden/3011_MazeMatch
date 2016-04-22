@@ -44,8 +44,6 @@ public class Tile extends JLabel implements MouseListener {
     private boolean             isEmpty;  // True iff this tile is a blank game
                                           // board space
     private int                 orient; // 0-3 multiplied by 90 when used
-    private int                 start_orient; // starting orientation for reset
-    private int                 start_loc;  // starting location, for reset
 
     // Constants
     private static final Border border           = BorderFactory
@@ -102,23 +100,6 @@ public class Tile extends JLabel implements MouseListener {
     
     public void incOrient(){
         orient++;
-    }
-    
-    public int getStart_Orient() {
-        return start_orient;
-    }
-
-    public void setStart_Orient(int x) {
-        start_orient = x;
-        orient = start_orient;
-    }
-    
-    public int getStart_Loc() {
-        return start_loc;
-    }
-
-    public void setStart_Loc(int x) {
-        start_loc = x;
     }
 
     public Line[] getLines() {
@@ -241,6 +222,13 @@ public class Tile extends JLabel implements MouseListener {
             { Main.game.setLeftClicked(this); }
         else if (SwingUtilities.isRightMouseButton(arg0)) 
             { Main.game.setRightClicked(this); }
+        if(Main.verbose) {
+            System.out.print("initialTileState ID's : ");
+            for (Tile t : Main.initialTileState) {
+                System.out.print(t.getID() + ", ");
+            }
+            System.out.println();
+        }
     }
 
     @Override

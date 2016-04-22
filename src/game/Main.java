@@ -34,6 +34,10 @@ public class Main {
     
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
+    
+    // A game state needs to be stored globally for the reset button,
+    // so that the same state can be restored when the gameWindow is recreated
+    public static Tile[] initialTileState = new Tile[16];
 
     public static void main(String[] args) {
         // This is the play area
