@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 7, 2016
+ * @version April 22, 2016
  *
  * A starting point for the COSC 3011 programming assignment
  * Probably need to fix a bunch of stuff, but this compiles and runs.
@@ -41,11 +41,11 @@ public class Main {
 
     public static void main(String[] args) {
         // This is the play area
-        game = new GameWindow("Group E aMaze");
+        game = new GameWindow("Group E Maze");
 
         // have to override the default layout to reposition things!!!!!!!
         game.setSize(new Dimension(900, 1000));
-        game.setResizable(true);
+        game.setResizable(false);
 
         // So the debate here was, do I make the GameWindow object the game
         // or do I make main() the game, manipulating a window?

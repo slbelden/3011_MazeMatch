@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 7, 2016
+ * @version April 22, 2016
  *
  * This class Handles tasks and data that are the same in every tile.
  */

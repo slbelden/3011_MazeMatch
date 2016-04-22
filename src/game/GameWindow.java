@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 7, 2016
+ * @version April 22, 2016
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
@@ -93,7 +93,7 @@ public class GameWindow extends JFrame implements ActionListener {
     
     public void newGame(){
         Main.game.dispose();
-        Main.game = new GameWindow("Group E aMaze");
+        Main.game = new GameWindow("Group E Maze");
 
         Main.game.setSize(new Dimension(900, 1000));
         Main.game.setResizable(false);
@@ -109,7 +109,7 @@ public class GameWindow extends JFrame implements ActionListener {
      */
     public void reset(){ 
         Main.game.dispose();
-        Main.game = new GameWindow("Group E aMaze");
+        Main.game = new GameWindow("Group E Maze");
 
         Main.game.setSize(new Dimension(900, 1000));
         Main.game.setResizable(false);
