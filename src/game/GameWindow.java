@@ -131,7 +131,13 @@ public class GameWindow extends JFrame implements ActionListener {
                 tempTiles[loc] = new Tile(ID, tempLines);
             }
             if (tiles[i].getID() != -1){
-                tempTiles[tiles[i].getStart_Loc()] = tiles[i];
+                //tempTiles[tiles[i].getStart_Loc()] = tiles[i];
+                loc = tiles[i].getStart_Loc();
+                ID = tiles[i].getID();
+                tempLines = tiles[i].getLines();
+                tempTiles[loc] = new Tile(ID, tempLines);
+                //tempTiles[loc].setOrient(tiles[i].getStart_Orient());
+                //System.out.println("loc " + tiles[i].getStart_Loc()+" ID " + tiles[i].getID());
             }
         }
 
@@ -367,11 +373,12 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.gridx = j;
         basic.gridy = i;
         
-        
+        /*
         // Computer Screen 
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         basic.gridheight = (int) screenDim.getHeight();
         basic.gridwidth = (int) screenDim.getWidth();
+        */
     
         // create a panel, set its size and border, then add to grid
         Tile panel = new Tile(-1);
@@ -500,7 +507,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
-                lastClicked.setOrient(tempLoc);
+                lastClicked.setStart_Loc(tempLoc);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
                 Main.game.repaint();

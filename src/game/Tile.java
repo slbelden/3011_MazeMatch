@@ -202,7 +202,7 @@ public class Tile extends JLabel implements MouseListener {
             setBackground(Color.white);
             setBorder(NoBorder);
         }
-       setOrient(getStart_Orient());
+       //setOrient(getStart_Orient());
        //setLocale(getStart_Loc());
         repaint();
     }
