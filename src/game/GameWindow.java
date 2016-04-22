@@ -48,8 +48,18 @@ public class GameWindow extends JFrame implements ActionListener {
      */
     public static JButton newButton, resetButton, quitButton;
 
+    // We don't use this and we don't know what it's for.
+    // But it was in the template so we are leaving it here.
+    // private int startAt = 0;
+
     // Data used for game logic
     public static Tile lastClicked;
+    // creates an array of tiles
+    public Tile[] tiles = null;
+    public Tile[] grid = new Tile[16];
+    public int gridCount = 0;
+    
+    public GridBagConstraints basic = new GridBagConstraints();
 
     /**
      * Constructor: Sets the window name using super() and changes the layout
@@ -65,7 +75,17 @@ public class GameWindow extends JFrame implements ActionListener {
         setLayout(gbl);
     }
 
-    // Action Buttons on top of screen
+    /**
+     * Top buttons
+     * 
+     * @param e
+     *            is the ActionEvent
+     * 
+     *            BTW can ask the event for the name of the object generating
+     *            event. The odd syntax for non-java people is that "exit" for
+     *            instance is converted to a String object, then that object's
+     *            equals() method is called.
+     */
     public void actionPerformed(ActionEvent e) {
         if ("exit".equals(e.getActionCommand()))
             System.exit(0);
@@ -79,49 +99,71 @@ public class GameWindow extends JFrame implements ActionListener {
         Main.game.dispose();
         Main.game = new GameWindow("Group E aMaze");
 
-        // have to override the default layout to reposition things!!!!!!!
         Main.game.setSize(new Dimension(900, 1000));
         Main.game.setResizable(false);
-
-        // So the debate here was, do I make the GameWindow object the game
-        // or do I make main() the game, manipulating a window?
-        // Should GameWindow methods know what they store?
-        // Answer is, have the "game" do it.
+        
         Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Main.game.getContentPane().setBackground(Color.cyan);
         Main.game.setUp(true);
         Main.game.setVisible(true);
     }
-    
+ 
+    /**
+     * @author Colin Riley
+     */
     public void reset(){
-        Main.game.dispose();
-        Main.game = new GameWindow("Group E aMaze");
+        // creates variables and arrays to store values
+        int emptyID = -1;
+        int ID = -1;
+        int loc = -1;
+        Line[] emptyLines = null;
+        Line[] tempLines = null;
+        Tile[] tempTiles = new Tile[tiles.length];
+        
+        // initializes the elements tempTiles array
+        for(int i =0; i< tempTiles.length; ++i){
+            tempTiles[i] = new Tile(-1);
+        }
+        
+        // loops from 0 to the number of tiles
+        // used to fill the tempTiles array with the Tiles from the side
+        // and the grid
+        for(int i = 0; i < tiles.length; ++i){
+            if(grid[i].getID() != -1){
+                loc = grid[i].getStart_Loc();
+                ID = grid[i].getID();
+                tempLines = grid[i].getLines();
+                tempTiles[loc] = new Tile(ID, tempLines);                
+            }
+            if(tiles[i].getID() != -1){
+                tempTiles[tiles[i].getStart_Loc()] = tiles[i];
+            }
+        }
 
-        // have to override the default layout to reposition things!!!!!!!
-        Main.game.setSize(new Dimension(900, 1000));
-        Main.game.setResizable(false);
-
-        // So the debate here was, do I make the GameWindow object the game
-        // or do I make main() the game, manipulating a window?
-        // Should GameWindow methods know what they store?
-        // Answer is, have the "game" do it.
-        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Main.game.getContentPane().setBackground(Color.cyan);
-        Main.game.setUp(false);
-        Main.game.setVisible(true);
+        // sets the elements of tiles to the elements of tempTiles
+        for(int i = 0; i < tiles.length; ++i){
+            tempLines = tempTiles[i].getLines();
+            tiles[i].setID(tempTiles[i].getID());
+            tiles[i].setLines(tempLines);
+            tiles[i].makeLive();
+        }
+        
+        // clears the grid
+        for(int i =0;i<grid.length;++i){
+            grid[i].setID(emptyID);
+            grid[i].setLines(emptyLines);
+            grid[i].makeEmpty();
+        }              
     }
-    
 
     /**
      * Establishes the initial board
-     * Pass shuffle as true to setUp and shuffle
-     * Pass shuffle as false to setUp and not shuffle
      */
     public void setUp(Boolean shuffle) {
         // Need to play around with the dimensions and the grid x/y values
         // These constraints are going to be added to the pieces/parts I
         // stuff into the "GridBag".
-        GridBagConstraints basic = new GridBagConstraints();
+        
         basic.anchor = GridBagConstraints.FIRST_LINE_START;
         basic.gridx = 0;
         basic.gridy = 0;
@@ -136,38 +178,34 @@ public class GameWindow extends JFrame implements ActionListener {
          * @author Stepen Belden (code cleanup)
          */
 
-        /* Try-Catch Block Variables */
-        
-        // creates an array of tiles
         // num and fnum are data containers
-        Tile[] tiles = null;        
         int num = 0;
         float fnum = 0;
 
         // count is keeps track of what is being read in (tile #, # lines, etc)
-        // is the loop reading an x value or a y
-        int count = -1;        
-        int countxy = 0;
-        
+        int count = -1;
         // how many lines does the tile have, how many points
         int numPoints = 0;
         int numXY = 0;
 
+        // is the loop reading an x value or a y
+        int countxy = 0;
+
         // the id of the tile
         int tileId = 0;
 
-        // x and y are used to create a point
-        // points is an an array of lines (technically points but used as lines)
-        // b is a 4 byte array, used for converting to ints or floats
-        float x = 0, y = 0;        
+        // used to create a point
+        float x = 0, y = 0;
+
+        // an array of lines
         Point[] points = null;
-        byte[] b = new byte[4];
-        
+
         // creates a file and a path
         File file = new File("default.mze");
         Path path = Paths.get(file.getPath());
-        
-        /* END Try-Catch Block Variables */
+
+        // a 4 byte array, used for converting to ints or floats
+        byte[] b = new byte[4];
 
         // try catch for reading from the file
         try {
@@ -177,8 +215,9 @@ public class GameWindow extends JFrame implements ActionListener {
             // iterate through full in groups of four bytes
             for (int i = 0; i < file.length(); i += 4) {
                 // iterate four bytes in those groups and set b to them
-                for (int j = 0; j < 4; ++j) 
-                    { b[j] = full[i + j]; }
+                for (int j = 0; j < 4; ++j) {
+                    b[j] = full[i + j];
+                }
 
                 // the first value read is the number of tiles
                 // create the array of tiles with this
@@ -266,13 +305,22 @@ public class GameWindow extends JFrame implements ActionListener {
             System.out.println("File not read\n");
         }
         
+        // shuffles the order of the tiles
         if (shuffle == true)
         {
-        	shuffleArray(tiles);
+            shuffleArray(tiles);
+        }
+        
+        // sets the start location of the tiles
+        for(int i = 0; i < tiles.length; ++i){
+            tiles[i].setStart_Loc(i);
         }
         
         if(Main.verbose) for (Tile t : tiles) t.debugPrint();
-
+        
+        // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
+        
+        
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -280,70 +328,75 @@ public class GameWindow extends JFrame implements ActionListener {
                 if (i == 0 && j == 0) 
                     { this.addButtons(basic); }
                 else if (i == 0 && j > 2 || i == 1)
-                	{ emptyRow(basic, i, j, tiles); }
+                    { emptyRow(basic, i, j, tiles); }
                 else if (j == 0 || j == 7 && i > 0) 
-                	{ sidePanels(basic, i, j, tiles); }
+                    { sidePanels(basic, i, j, tiles); }
                 else if (i > 3 && i < 8 && j > 1 && j < 6) 
-                	{ centerTiles(basic, i, j); }
+                    { centerTiles(basic, i, j); }
             }
         }
-        // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
-    }
-    
+    // for (int t = 0; t < 16; t++) tiles[t].debugPrint();
+}
+
     // if anything besides the first 3 cells of row 1 or any of row
     // 2 are selected add empty cells to the board
     public void emptyRow(GridBagConstraints basic, int i, int j, Tile[] tiles)
     {
-    	// sets the grid cell
+        // sets the grid cell
         basic.gridx = j;
         basic.gridy = i;
-
+    
         // create a blank label, set its size, and it to the grid
         JLabel label = new JLabel("");
         label.setPreferredSize(new Dimension(100, 45));
         this.add(label, basic);
     }
     
+    
     // if the cell selected is in the first column or last column,
     // but is after the first row add panels. These are on the side
     // and hold tiles before being placed
     private void sidePanels(GridBagConstraints basic, int i, int j, Tile[] tiles)
     {
-    	// sets the cell
+        // sets the cell
         basic.gridx = j;
         basic.gridy = i;
-
+    
         if (j == 0) 
-        	{ this.add(tiles[i - 2], basic); }
+            { this.add(tiles[i - 2], basic); }
         else 
-        	{ this.add(tiles[i - 2 + 8], basic); }
+            { this.add(tiles[i - 2 + 8], basic); }
     }
     
     // if the middle 16 cells are selected, add panels. These are
     // where the user places tiles in the game grid to play
     private void centerTiles(GridBagConstraints basic, int i, int j)
     {
-    	// set the cell
+        // set the cell
         basic.gridx = j;
         basic.gridy = i;
         
+        /*
         // Computer Screen 
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         basic.gridheight = (int) screenDim.getHeight();
         basic.gridwidth = (int) screenDim.getWidth();
-
+    */
         // create a panel, set its size and border, then add to grid
         Tile panel = new Tile(-1);
         panel.setPreferredSize(new Dimension(100, 100));
         panel.makeEmpty();
         this.add(panel, basic);
+        grid[gridCount] = panel;
+        ++gridCount;
     }
     
+
     /**
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
      * 
-     * @author Colin Riley (reworked from first)
+     * @author Colin Riley
      * @param basic
      * 
      *            This doesn't need to be a function because it's only called
@@ -382,7 +435,7 @@ public class GameWindow extends JFrame implements ActionListener {
         this.add(quitButton, basic);
     }
     
-    // Shuffles the tiles
+    // 
     private void shuffleArray(Tile[] tiles)
     {
         // shuffle the tile array.  Create a list with the array then use
@@ -402,6 +455,7 @@ public class GameWindow extends JFrame implements ActionListener {
         for(int i = 0; i <  orientArray.length; ++i){
             tiles[i].setStart_Orient((int) orientArray[i]);
         }
+        
     }
     
     // Handles game logic for a right click
@@ -410,11 +464,11 @@ public class GameWindow extends JFrame implements ActionListener {
     // tile is then clicked and/or swapped. 
     public void setRightClicked(Tile clickedTile)
     {
-    	// Orient the Tile
+        // Orient the Tile
         if (clickedTile.getOrient() < 3)
             clickedTile.incOrient();
         else
-        	clickedTile.setOrient(0);
+            clickedTile.setOrient(0);
         
         // Rotate the Graphic
         Graphics2D g2 = (Graphics2D) clickedTile.getGraphics();
@@ -423,7 +477,6 @@ public class GameWindow extends JFrame implements ActionListener {
         g2.setTransform(at);
         clickedTile.paintComponent(g2);
     }
-    
 
     /**
      * Handles the game logic for swapping tiles only after 2 different tiles
@@ -449,13 +502,16 @@ public class GameWindow extends JFrame implements ActionListener {
                     lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
                 int tempOrient = clickedTile.getOrient();
+                int tempLoc = clickedTile.getStart_Loc();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
+                clickedTile.setStart_Loc(lastClicked.getStart_Loc());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
+                lastClicked.setOrient(tempLoc);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
                 Main.game.repaint();
@@ -470,13 +526,16 @@ public class GameWindow extends JFrame implements ActionListener {
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
                 int tempOrient = clickedTile.getOrient();
+                int tempLoc = clickedTile.getStart_Loc();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
+                clickedTile.setStart_Loc(lastClicked.getStart_Loc());
                 lastClicked.setID(tempID);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
+                lastClicked.setOrient(tempLoc);
                 clickedTile.switchState();
                 lastClicked.switchState();
                 lastClicked = null;
