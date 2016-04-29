@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 22, 2016
+ * @version April 28, 2016
  *
  * A starting point for the COSC 3011 programming assignment
  * Probably need to fix a bunch of stuff, but this compiles and runs.
@@ -26,7 +26,7 @@ import javax.swing.*;
  * @author Kim Buckner Modifications by the group as a whole
  */
 public class Main {
-    // Globally accessible:
+    // Globally accessible things:
     
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
@@ -44,8 +44,8 @@ public class Main {
         game = new GameWindow("Group E Maze");
 
         // have to override the default layout to reposition things!!!!!!!
-        //game.setSize(new Dimension(900, 1000));
-        //game.setResizable(false);
+        game.setSize(new Dimension(900, 1000));
+        game.setResizable(false);
 
         // So the debate here was, do I make the GameWindow object the game
         // or do I make main() the game, manipulating a window?
