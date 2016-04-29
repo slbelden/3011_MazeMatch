@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
@@ -51,8 +53,9 @@ public class GameWindow extends JFrame implements ActionListener {
     public static Tile lastClicked;
 
     // creates an array of tiles
-    public Tile[] tiles = null;
+    public static Tile[] tiles = null;
     public Tile[] grid = new Tile[16];
+    public byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
     public int gridCount = 0;
 
     public GridBagConstraints basic = new GridBagConstraints();
@@ -67,7 +70,9 @@ public class GameWindow extends JFrame implements ActionListener {
         super(s);
         GridBagLayout gbl = new GridBagLayout();
         setLayout(gbl);
+        this.setSize(new Dimension(900, 1000));
         this.setMinimumSize(this.getPreferredSize());
+        this.setResizable(false);
     }
 
     /**
@@ -106,16 +111,21 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     public void newGame() {
-        Main.game.dispose();
-        Main.game = new GameWindow("Group E Maze");
-
-        Main.game.setSize(new Dimension(900, 1000));
-        Main.game.setResizable(false);
-
-        Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Main.game.getContentPane().setBackground(Color.cyan);
-        Main.game.setUp(true);
-        Main.game.setVisible(true);
+        fileOutArray();
+        try {
+            writeFile(outByte);
+        } catch (IOException e) {
+            System.out.println("Failed to write to file.");
+            e.printStackTrace();
+        }
+        /*
+         * Main.game.dispose(); Main.game = new GameWindow("Group E Maze");
+         * Main.game.setSize(new Dimension(900, 1000));
+         * Main.game.setResizable(false);
+         * Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+         * Main.game.getContentPane().setBackground(Color.cyan);
+         * Main.game.setUp(true); Main.game.setVisible(true);
+         */
     }
 
     /**
@@ -176,128 +186,13 @@ public class GameWindow extends JFrame implements ActionListener {
          * @author Stepen Belden (code cleanup)
          */
 
-        // num and fnum are data containers
-        int num = 0;
-        float fnum = 0;
-
-        // count is keeps track of what is being read in (tile #, # lines, etc)
-        int count = -1;
-        // how many lines does the tile have, how many points
-        int numPoints = 0;
-        int numXY = 0;
-
-        // is the loop reading an x value or a y
-        int countxy = 0;
-
-        // the id of the tile
-        int tileId = 0;
-
-        // used to create a point
-        float x = 0, y = 0;
-
-        // an array of lines
-        Point[] points = null;
-
         // creates a file and a path
         File file = new File("default.mze");
         Path path = Paths.get(file.getPath());
 
-        // a 4 byte array, used for converting to ints or floats
-        byte[] b = new byte[4];
-
-        // try catch for reading from the file
-        try {
-            // creates an array of bytes that is the entire file
-            byte[] full = Files.readAllBytes(path);
-
-            // iterate through full in groups of four bytes
-            for (int i = 0; i < file.length(); i += 4) {
-                // iterate four bytes in those groups and set b to them
-                for (int j = 0; j < 4; ++j) {
-                    b[j] = full[i + j];
-                }
-
-                // the first value read is the number of tiles
-                // create the array of tiles with this
-                if (i == 0) {
-                    num = convertToInt(b);
-                    tiles = new Tile[num];
-                }
-
-                else {
-                    // the loop is going over the id of the tile
-                    // convert the input and store in title
-                    if (count == -1) {
-                        num = convertToInt(b);
-                        tileId = num;
-                        ++count;
-                    }
-
-                    /*
-                     * The loop is going over the number of lines a tile has. It
-                     * converts input, sets size of array, sets how many lines
-                     * will be read
-                     */
-                    else if (count == 0) {
-                        num = convertToInt(b);
-                        numXY = num * 4;
-                        points = new Point[num * 2];
-                        ++count;
-                    }
-
-                    /*
-                     * Here, the last point for this tile is being read. This
-                     * creates and sets a point using the x and y values, y is
-                     * being read. A new tile with the Id and points is
-                     * constructed, and makeLive() is called. Counters are reset
-                     */
-                    else if (count == numXY) {
-                        fnum = convertToFloat(b);
-                        y = fnum;
-                        Point p = new Point();
-                        p.setLocation(x, y);
-                        points[numPoints] = p;
-                        Line[] lines = new Line[numXY / 4];
-                        int tempLineCount = 0;
-                        for (int k = 0; k < numXY / 2; k += 2) {
-                            lines[tempLineCount] =
-                                    new Line(points[k], points[k + 1]);
-                            tempLineCount++;
-                        }
-                        tiles[tileId] = new Tile(tileId, lines);
-                        tiles[tileId].makeLive();
-                        countxy = 0;
-                        count = -1;
-                        numPoints = 0;
-                    }
-
-                    // reading points. Convert input to a float
-                    else {
-                        fnum = convertToFloat(b);
-
-                        // if the count is even set x
-                        if ((countxy % 2) == 0) {
-                            x = fnum;
-                            ++countxy;
-                        }
-
-                        // if the count is odd set y and set location of p.
-                        // add p to points
-                        else {
-                            y = fnum;
-                            Point p = new Point();
-                            p.setLocation(x, y);
-                            ++countxy;
-                            points[numPoints] = p;
-                            ++numPoints;
-                        }
-                        ++count;
-                    }
-                }
-            }
-        } catch (IOException ioe) {
-            System.out.println("File not read\n");
-        }
+        // reads from default on initial run. Adds value to the tiles and
+        // draws lines on them
+        readFromFile(file, path);
 
         // Sets the initial tile state for the reset button
         if (newGame == true) {
@@ -330,6 +225,256 @@ public class GameWindow extends JFrame implements ActionListener {
                     centerTiles(basic, i, j);
                 }
             }
+        }
+    }
+
+    public static void readFromFile(File file, Path path) {
+
+        // data containers
+        int num = 0;
+        float fnum = 0;
+
+        // count is keeps track of what is being read in (tile #, # lines, etc)
+        int count = -1;
+
+        // how many lines does the tile have, how many points
+        int numPoints = 0;
+        int numXY = 0;
+
+        // is the loop reading an x value or a y
+        int countxy = 0;
+
+        // the id of the tile
+        int tileId = 0;
+
+        // used to create a point
+        float x = 0, y = 0;
+
+        // an array of lines
+        Point[] points = null;
+
+        // a 4 byte array, used for converting to ints or floats
+        byte[] b = new byte[4];
+
+        // try catch for reading from the file
+        try {
+            // creates an array of bytes that is the entire file
+            byte[] full = Files.readAllBytes(path);
+
+            for (int i = 0; i < file.length(); i += 4) {
+                for (int j = 0; j < 4; ++j) {
+                    b[j] = full[i + j];
+                }
+
+                if (i == 0) {
+                    // System.out.println(byteArrayToHexString(b));
+                    // 0xca, 0xfe, 0xde, 0xed,
+                } else if (i == 4) {
+                    num = convertToInt(b);
+                    // System.out.println("Num Tiles "+num);
+                    tiles = new Tile[num];
+                }
+
+                else {
+                    // the loop is going over the id of the tile
+                    // convert the input and store in title
+                    if (count == -1) {
+                        num = convertToInt(b);
+                        tileId = num;
+                        ++count;
+                        // System.out.println("Tile ID = " + tileId);
+                    }
+
+                    /*
+                     * The loop is going over the number of lines a tile has. It
+                     * converts input, sets size of array, sets how many lines
+                     * will be read
+                     */
+                    else if (count == 0) {
+                        num = convertToInt(b);
+                        numXY = num * 4;
+                        points = new Point[num * 2];
+                        ++count;
+                        /*
+                         * System.out.println("Number of lines " + num +
+                         * ", num points = " + num*2);
+                         */
+                    }
+
+                    /*
+                     * Here, the last point for this tile is being read. This
+                     * creates and sets a point using the x and y values, y is
+                     * being read. A new tile with the Id and points is
+                     * constructed, and makeLive() is called. Counters are reset
+                     */
+                    else if (count == numXY) {
+                        fnum = convertToFloat(b);
+                        y = fnum;
+                        Point p = new Point();
+                        p.setLocation(x, y);
+                        points[numPoints] = p;
+                        // System.out.println("point: "+p);
+                        Line[] lines = new Line[numXY / 4];
+                        int tempLineCount = 0;
+                        for (int k = 0; k < numXY / 2; k += 2) {
+                            lines[tempLineCount] =
+                                    new Line(points[k], points[k + 1]);
+                            tempLineCount++;
+                        }
+                        tiles[tileId] = new Tile(tileId, lines);
+                        tiles[tileId].makeLive();
+                        countxy = 0;
+                        count = -1;
+                        numPoints = 0;
+                    }
+
+                    // reading points. Convert input to a float
+                    else {
+                        fnum = convertToFloat(b);
+
+                        // if the count is even set x
+                        if ((countxy % 2) == 0) {
+                            x = fnum;
+                            ++countxy;
+                        }
+
+                        // if the count is odd set y and set location of p.
+                        // add p to points
+                        else {
+                            y = fnum;
+                            Point p = new Point();
+                            p.setLocation(x, y);
+                            // System.out.println("point " + p);
+                            ++countxy;
+                            points[numPoints] = p;
+                            ++numPoints;
+                        }
+                        ++count;
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            System.out.println("File not read\n");
+            tiles = new Tile[16];
+            for (int i = 0; i < 16; ++i) {
+                tiles[i] = new Tile(-1);
+            }
+        }
+    }
+
+    public void fileOutArray() {
+        byte[] ob = new byte[4];
+        int byteCount = 0;
+
+        for (int k = 0; k < 4; ++k) {
+            if (k == 0)
+                ob[k] = (byte) 0xca;
+            else if (k == 1)
+                ob[k] = (byte) 0xfe;
+            else if (k == 2)
+                ob[k] = (byte) 0xde;
+            else
+                ob[k] = (byte) 0xed;
+        }
+        bArrTob2Arr(outByte, ob, byteCount);
+
+        byteCount += 4;
+
+        ob = convertIntToByteArray(32);
+        bArrTob2Arr(outByte, ob, byteCount);
+
+        byteCount += 4;
+
+        /*
+         * if i <16 look at tiles, else at grid if foo[i].getID() ==-1 write
+         * that to file else foo[i].getOtherAttributes and write to file
+         */
+
+        for (int i = 0; i < 32; ++i) {
+            if (i < 16) {
+                if (tiles[i].getID() != -1) {
+                    ob = convertIntToByteArray(tiles[i].getID());
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    ob = convertIntToByteArray(tiles[i].getOrient());
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    Line[] line = tiles[i].getLines();
+                    ob = convertIntToByteArray(line.length);
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    for (int j = 0; j < line.length; ++j) {
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getX());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getY());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getEnd().getX());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getY());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+                    }
+                } else {
+                    ob = convertIntToByteArray(-1);
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+                }
+            } else {
+                if (grid[i - 16].getID() != -1) {
+                    ob = convertIntToByteArray(grid[i - 16].getID());
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    ob = convertIntToByteArray(grid[i - 16].getOrient());
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    Line[] line = grid[i].getLines();
+                    ob = convertIntToByteArray(line.length);
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    for (int j = 0; j < line.length * 4; ++j) {
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getX());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getY());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getEnd().getX());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+
+                        ob = convertFloatToByteArray(
+                                (float) line[j].getBegin().getY());
+                        bArrTob2Arr(outByte, ob, byteCount);
+                        byteCount += 4;
+                    }
+                } else {
+                    ob = convertIntToByteArray(-1);
+                    bArrTob2Arr(outByte, ob, byteCount);
+                    byteCount += 4;
+                }
+            }
+
         }
     }
 
@@ -466,8 +611,10 @@ public class GameWindow extends JFrame implements ActionListener {
         // sets the orientation for the tiles.
         for (int i = 0; i < orientArray.length; ++i) {
             tiles[i].setOrient((int) orientArray[i]);
+            if (tiles[i].getID() == -1) {
+                tiles[i].makeEmpty();
+            }
         }
-
     }
 
     // Handles game logic for a right click
@@ -543,6 +690,44 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
+     ********************** CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
+     * @author Colin Riley user enters a file name, .mze is added to it. array
+     *         of bytes is written to created file of that name
+     * @param outByte
+     * @throws IOException
+     */
+    public static void writeFile(byte[] outByte) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            @SuppressWarnings("resource")
+            Scanner reader = new Scanner(System.in); // Reading from System.in
+            System.out.println("Enter a File name: ");
+            String s = reader.nextLine(); // Scans the next token of the input
+                                          // as an int.
+            s += ".mze";
+            fos = new FileOutputStream(s);
+            fos.write(outByte);
+        } catch (IOException ioe) {
+            System.out.println("File failed to write\n");
+        } finally {
+            fos.close();
+        }
+    }
+
+    /**
+     * @author Colin Riley function that adds 4byte arrays to a larger byte
+     *         array
+     * @param outByte
+     * @param ob
+     * @param i
+     */
+    public static void bArrTob2Arr(byte[] outByte, byte[] ob, int i) {
+        for (int k = 0; k < 4; ++k) {
+            outByte[i + k] = ob[k];
+        }
+    }
+
+    /**
      * @author Java2s.com Following code taken from
      *         http://www.java2s.com/Book/Java/Examples/
      *         Convert_data_to_byte_array_back_and_forth.htm
@@ -557,5 +742,41 @@ public class GameWindow extends JFrame implements ActionListener {
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
+    }
+
+    public static String byteArrayToHexString(byte[] b) {
+        StringBuffer sb = new StringBuffer(b.length * 2);
+        for (int i = 0; i < b.length; i++) {
+            int v = b[i] & 0xff;
+            if (v < 16) {
+                sb.append('0');
+            }
+            sb.append(Integer.toHexString(v));
+        }
+        return sb.toString().toUpperCase();
+    }
+
+    public static byte[] convertIntToByteArray(int value) {
+        byte[] bytes = new byte[4];
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        buffer.putInt(value);
+        return buffer.array();
+    }
+
+    public static byte[] convertFloatToByteArray(float value) {
+        byte[] bytes = new byte[4];
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        buffer.putFloat(value);
+        return buffer.array();
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 };
