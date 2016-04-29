@@ -76,7 +76,7 @@ public class Tile extends JLabel implements MouseListener {
         setPreferredSize(new Dimension(100, 100));
         this.setMinimumSize(this.getPreferredSize());
         setVisible(true);
-        setBorder(border);
+        setBorder(in.getBorder());
 
         addMouseListener(this);
     }
@@ -139,8 +139,6 @@ public class Tile extends JLabel implements MouseListener {
      */
     @Override
     public void paintComponent(Graphics g) {
-        if (Main.verbose)
-            System.out.println("Attempting to redraw tile " + ID + "...");
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform at = g2.getTransform();
         at.rotate(Math.toRadians(orient * 90), 50, 50);
@@ -155,8 +153,6 @@ public class Tile extends JLabel implements MouseListener {
                 g2.draw(line1);
             }
         }
-        if (Main.verbose)
-            System.out.println("Tile " + ID + " was repainted");
     }
 
     /**

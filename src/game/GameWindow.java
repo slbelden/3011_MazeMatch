@@ -46,19 +46,22 @@ public class GameWindow extends JFrame implements ActionListener {
      * Declare Buttons
      * @author Kim Buckner
      */
-    public static JButton fileButton, resetButton, quitButton, newButton,
+    private static JButton fileButton, resetButton, quitButton, newButton,
             loadButton;
 
     // Data used for game logic
-    public static Tile lastClicked;
+    private static Tile lastClicked;
 
     // creates an array of tiles
-    public static Tile[] tiles = null;
-    public Tile[] grid = new Tile[16];
-    public byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
-    public int gridCount = 0;
+    private static Tile[] tiles = null;
+    private Tile[] grid = new Tile[16];
+    
+    // Data used for loading and saving
+    private byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
+    private int gridCount = 0;
+    private boolean played = false;
 
-    public GridBagConstraints basic = new GridBagConstraints();
+    private GridBagConstraints basic = new GridBagConstraints();
 
     /**
      * Constructor: Sets the window name using super() and changes the layout
@@ -674,24 +677,21 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked = null;
                 // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
-                int tempID = clickedTile.getID();
-                int tempOrient = clickedTile.getOrient();
-                Line[] tempLines = clickedTile.getLines();
-                clickedTile.setID(lastClicked.getID());
-                clickedTile.setLines(lastClicked.getLines());
-                clickedTile.setOrient(lastClicked.getOrient());
-                lastClicked.setID(tempID);
-                lastClicked.setLines(tempLines);
-                lastClicked.setOrient(tempOrient);
-                clickedTile.switchState();
-                lastClicked.switchState();
+                Tile temp = new Tile(clickedTile);
+                clickedTile = new Tile(lastClicked);
+                lastClicked = new Tile(temp);
+                clickedTile.reset();
+                lastClicked.reset();
                 lastClicked = null;
+                System.out.print("Tile ID's: ");
+                for (Tile t : tiles) System.out.print(t.getID() + ", ");
+                System.out.println();
             }
         }
     }
 
     /**
-     ********************** CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
+     ******************** CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
      * @author Colin Riley user enters a file name, .mze is added to it. array
      *         of bytes is written to created file of that name
      * @param outByte
