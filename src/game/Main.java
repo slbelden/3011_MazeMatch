@@ -10,9 +10,6 @@
  * @author Neil Carrico
  * @version April 29, 2016
  *
- * A starting point for the COSC 3011 programming assignment
- * Probably need to fix a bunch of stuff, but this compiles and runs.
- * 
  * The version of Main.java we are using now is largely unmodified from
  * the original.
  */
