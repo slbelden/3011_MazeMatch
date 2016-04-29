@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 28, 2016
+ * @version April 29, 2016
  *
  * A starting point for the COSC 3011 programming assignment
  * Probably need to fix a bunch of stuff, but this compiles and runs.
@@ -27,14 +27,14 @@ import javax.swing.*;
  */
 public class Main {
     // Globally accessible things:
-    
+
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
     public static boolean verbose = false;
-    
+
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
-    
+
     // A game state needs to be stored globally for the reset button,
     // so that the same state can be restored when the gameWindow is recreated
     public static Tile[] initialTileState = new Tile[16];

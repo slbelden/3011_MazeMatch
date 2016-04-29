@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
-* @version April 22, 2016
+ * @version April 29, 2016
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
@@ -27,7 +27,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -36,7 +35,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
@@ -46,13 +44,14 @@ public class GameWindow extends JFrame implements ActionListener {
      * Declare Buttons
      * @author Kim Buckner
      */
-    public static JButton newButton, resetButton, quitButton;
+    public static JButton fileButton, resetButton, quitButton, newButton,
+            loadButton;
 
     // Data used for game logic
     public static Tile lastClicked;
 
     // creates an array of tiles
-    public static  Tile[] tiles = null;
+    public Tile[] tiles = null;
     public Tile[] grid = new Tile[16];
     public int gridCount = 0;
 
@@ -68,12 +67,16 @@ public class GameWindow extends JFrame implements ActionListener {
         super(s);
         GridBagLayout gbl = new GridBagLayout();
         setLayout(gbl);
+        this.setMinimumSize(this.getPreferredSize());
     }
 
     /**
      * Top buttons
      * @param e
-     *            is the ActionEvent
+     *            is the ActionEvent BTW can ask the event for the name of the
+     *            object generating event. The odd syntax for non-java people is
+     *            that "exit" for instance is converted to a String object, then
+     *            that object's equals() method is called.
      */
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -81,8 +84,25 @@ public class GameWindow extends JFrame implements ActionListener {
             System.exit(0);
         if ("reset".equals(e.getActionCommand()))
             reset();// System.out.println("reset pressed\n");
+        if ("file".equals(e.getActionCommand()))
+            file();// System.out.println("new pressed\n");
         if ("new".equals(e.getActionCommand()))
-            newGame();// System.out.println("new pressed\n");
+            newGame();
+        if ("load".equals(e.getActionCommand()))
+            loadGame();
+    }
+
+    /**
+     * @author James Scott
+     */
+    public void file() {
+        if (newButton.isVisible() == false) {
+            newButton.setVisible(true);
+            loadButton.setVisible(true);
+        } else {
+            newButton.setVisible(false);
+            loadButton.setVisible(false);
+        }
     }
 
     public void newGame() {
@@ -99,7 +119,16 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
+     * @author James Scott
+     */
+    public void loadGame() {
+        // load game
+        reset();
+    }
+
+    /**
      * @author Colin Riley
+     * @author James Scott
      */
     public void reset() {
 
@@ -126,11 +155,12 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * @author Colin Riley (work on tiles, grid, and reading from file)
-     * @author Stepen Belden (fixes)
      */
     public void setUp(Boolean newGame) {
-        // Grid bag constraints
+        // Need to play around with the dimensions and the grid x/y values
+        // These constraints are going to be added to the pieces/parts I
+        // stuff into the "GridBag".
+
         basic.anchor = GridBagConstraints.FIRST_LINE_START;
         basic.gridx = 0;
         basic.gridy = 0;
@@ -139,60 +169,19 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipadx = 0;
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
+        // basic.gridheight = 2; // comment this out
 
+        /**
+         * @author Colin Riley work on tiles, grid, and reading from file
+         * @author Stepen Belden (code cleanup)
+         */
 
-        // creates a file and a path
-        File file = new File("default.mze");
-        Path path = Paths.get(file.getPath());
-
-        // reads from default on initial run.  Adds value to the tiles and 
-        // draws lines on them
-        readFromFile(file, path);
-
-        // Sets the initial tile state for the reset button
-        if (newGame == true) {
-            shuffleArray(tiles);
-            for (int i = 0; i < tiles.length; i++) {
-                Main.initialTileState[i] = new Tile(tiles[i]);
-                Main.initialTileState[i].makeLive();
-            }
-        } else {
-            for (int i = 0; i < tiles.length; i++) {
-                tiles[i] = new Tile(Main.initialTileState[i]);
-                tiles[i].makeLive();
-            }
-        }
-
-        if (Main.verbose) for (Tile t : tiles)
-            t.debugPrint();
-
-        // nested for loop to iterate through the grid (9 rows and 7 columns)
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                // if the first cell is selected call the addButtons method
-                if (i == 0 && j == 0) {
-                    this.addButtons(basic);
-                } else if (i == 0 && j > 2 || i == 1) {
-                    emptyRow(basic, i, j, tiles);
-                } else if (j == 0 || j == 7 && i > 0) {
-                    sidePanels(basic, i, j, tiles);
-                } else if (i > 3 && i < 8 && j > 1 && j < 6) {
-                    centerTiles(basic, i, j);
-                }
-            }
-        }
-    }
-    
-    
-    public static void readFromFile(File file, Path path){
-
-        // data containers
+        // num and fnum are data containers
         int num = 0;
         float fnum = 0;
 
         // count is keeps track of what is being read in (tile #, # lines, etc)
         int count = -1;
-
         // how many lines does the tile have, how many points
         int numPoints = 0;
         int numXY = 0;
@@ -208,8 +197,12 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // an array of lines
         Point[] points = null;
-        
-     // a 4 byte array, used for converting to ints or floats
+
+        // creates a file and a path
+        File file = new File("default.mze");
+        Path path = Paths.get(file.getPath());
+
+        // a 4 byte array, used for converting to ints or floats
         byte[] b = new byte[4];
 
         // try catch for reading from the file
@@ -304,12 +297,41 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         } catch (IOException ioe) {
             System.out.println("File not read\n");
-            tiles = new Tile[16];
-            for(int i = 0; i < 16; ++i){
-                tiles[i] = new Tile(-1);
+        }
+
+        // Sets the initial tile state for the reset button
+        if (newGame == true) {
+            shuffleArray(tiles);
+            for (int i = 0; i < tiles.length; i++) {
+                Main.initialTileState[i] = new Tile(tiles[i]);
+                Main.initialTileState[i].makeLive();
+            }
+        } else {
+            for (int i = 0; i < tiles.length; i++) {
+                tiles[i] = new Tile(Main.initialTileState[i]);
+                tiles[i].makeLive();
             }
         }
-       }
+
+        if (Main.verbose) for (Tile t : tiles)
+            t.debugPrint();
+
+        // nested for loop to iterate through the grid (9 rows and 7 columns)
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // if the first cell is selected call the addButtons method
+                if (i == 0 && j == 0) {
+                    this.addButtons(basic);
+                } else if (i == 0 && j > 2 || i == 1) {
+                    emptyRow(basic, i, j, tiles);
+                } else if (j == 0 || j == 7 && i > 0) {
+                    sidePanels(basic, i, j, tiles);
+                } else if (i > 3 && i < 8 && j > 1 && j < 6) {
+                    centerTiles(basic, i, j);
+                }
+            }
+        }
+    }
 
     // if anything besides the first 3 cells of row 1 or any of row
     // 2 are selected add empty cells to the board
@@ -371,11 +393,11 @@ public class GameWindow extends JFrame implements ActionListener {
         // create new buttons for newButton, resetButton, and quitButton
         // set their text, size, and action command
 
-        newButton = new JButton("File");
-        newButton.setPreferredSize(new Dimension(100, 30));
-        newButton.setMinimumSize(newButton.getPreferredSize());
-        newButton.setActionCommand("new");
-        newButton.addActionListener(this);
+        fileButton = new JButton("File");
+        fileButton.setPreferredSize(new Dimension(100, 30));
+        fileButton.setMinimumSize(fileButton.getPreferredSize());
+        fileButton.setActionCommand("file");
+        fileButton.addActionListener(this);
 
         resetButton = new JButton("Reset");
         resetButton.setPreferredSize(new Dimension(100, 30));
@@ -389,17 +411,42 @@ public class GameWindow extends JFrame implements ActionListener {
         quitButton.setActionCommand("exit");
         quitButton.addActionListener(this);
 
+        newButton = new JButton("New Game");
+        newButton.setPreferredSize(new Dimension(100, 30));
+        newButton.setMinimumSize(newButton.getPreferredSize());
+        newButton.setActionCommand("new");
+        newButton.addActionListener(this);
+        newButton.setVisible(false);
+
+        loadButton = new JButton("Load Game");
+        loadButton.setPreferredSize(new Dimension(100, 30));
+        loadButton.setMinimumSize(loadButton.getPreferredSize());
+        loadButton.setActionCommand("load");
+        loadButton.addActionListener(this);
+        loadButton.setVisible(false);
+
         // set the cells to the first row, and the first 3 cells of that
+        basic.gridy = 0;
+
         basic.gridx = 0;
-        this.add(newButton, basic);
+        this.add(fileButton, basic);
 
         basic.gridx = 1;
         this.add(resetButton, basic);
 
         basic.gridx = 2;
         this.add(quitButton, basic);
+
+        basic.gridx = 0;
+        basic.gridy = 2;
+        this.add(newButton, basic);
+
+        basic.gridx = 1;
+        basic.gridy = 2;
+        this.add(loadButton, basic);
     }
 
+    //
     private void shuffleArray(Tile[] tiles) {
         // shuffle the tile array. Create a list with the array then use
         // shuffle. Then convert back.
@@ -419,9 +466,6 @@ public class GameWindow extends JFrame implements ActionListener {
         // sets the orientation for the tiles.
         for (int i = 0; i < orientArray.length; ++i) {
             tiles[i].setOrient((int) orientArray[i]);
-            if(tiles[i].getID() == -1){
-                tiles[i].makeEmpty();
-            }
         }
 
     }
@@ -497,48 +541,6 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         }
     }
-    
-    /**
-     **********************CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
-     * @author Colin Riley
-     * user enters a file name, .mze is added to it.  array of bytes is written
-     * to created file of that name
-     * @param outByte
-     * @throws IOException
-     * 
-     */
-    public static void writeFile(byte[] outByte) throws IOException{
-        FileOutputStream fos = null;
-        
-        
-        try{
-            @SuppressWarnings("resource")
-            Scanner reader = new Scanner(System.in);  // Reading from System.in
-            System.out.println("Enter a File name: ");
-            String s = reader.nextLine(); // Scans the next token of the input as an int.
-            s += ".mze";
-            fos = new FileOutputStream(s);
-            fos.write(outByte);
-        }catch (IOException ioe) {
-            System.out.println("File failed to write\n");
-        }
-        finally{
-            fos.close();
-        } 
-    }
-    
-    /**
-     * @author Colin Riley
-     * function that adds 4byte arrays to a larger byte array
-     * @param outByte
-     * @param ob
-     * @param i
-     */
-    public static void bArrTob2Arr(byte[] outByte, byte[] ob, int i){
-        for(int k =0; k<4; ++k){
-            outByte[i+k] = ob[k];
-        }
-    }
 
     /**
      * @author Java2s.com Following code taken from
@@ -555,41 +557,5 @@ public class GameWindow extends JFrame implements ActionListener {
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
-    }
-    
-    public static String byteArrayToHexString(byte[] b) {
-        StringBuffer sb = new StringBuffer(b.length * 2);
-        for (int i = 0; i < b.length; i++) {
-          int v = b[i] & 0xff;
-          if (v < 16) {
-            sb.append('0');
-          }
-          sb.append(Integer.toHexString(v));
-        }
-        return sb.toString().toUpperCase();
-      }
-    
-    public static byte[] convertIntToByteArray(int value) {
-        byte[] bytes = new byte[4];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putInt(value);
-        return buffer.array();
-    }
-    
-    public static byte[] convertFloatToByteArray(float value) {
-        byte[] bytes = new byte[4];
-        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        buffer.putFloat(value);
-        return buffer.array();
-    }
-    
-    public static byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                                 + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
     }
 };
