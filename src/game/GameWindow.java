@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
@@ -50,7 +52,7 @@ public class GameWindow extends JFrame implements ActionListener {
     public static Tile lastClicked;
 
     // creates an array of tiles
-    public Tile[] tiles = null;
+    public static  Tile[] tiles = null;
     public Tile[] grid = new Tile[16];
     public int gridCount = 0;
 
@@ -138,6 +140,52 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
 
+
+        // creates a file and a path
+        File file = new File("default.mze");
+        Path path = Paths.get(file.getPath());
+
+        // reads from default on initial run.  Adds value to the tiles and 
+        // draws lines on them
+        readFromFile(file, path);
+
+        // Sets the initial tile state for the reset button
+        if (newGame == true) {
+            shuffleArray(tiles);
+            for (int i = 0; i < tiles.length; i++) {
+                Main.initialTileState[i] = new Tile(tiles[i]);
+                Main.initialTileState[i].makeLive();
+            }
+        } else {
+            for (int i = 0; i < tiles.length; i++) {
+                tiles[i] = new Tile(Main.initialTileState[i]);
+                tiles[i].makeLive();
+            }
+        }
+
+        if (Main.verbose) for (Tile t : tiles)
+            t.debugPrint();
+
+        // nested for loop to iterate through the grid (9 rows and 7 columns)
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                // if the first cell is selected call the addButtons method
+                if (i == 0 && j == 0) {
+                    this.addButtons(basic);
+                } else if (i == 0 && j > 2 || i == 1) {
+                    emptyRow(basic, i, j, tiles);
+                } else if (j == 0 || j == 7 && i > 0) {
+                    sidePanels(basic, i, j, tiles);
+                } else if (i > 3 && i < 8 && j > 1 && j < 6) {
+                    centerTiles(basic, i, j);
+                }
+            }
+        }
+    }
+    
+    
+    public static void readFromFile(File file, Path path){
+
         // data containers
         int num = 0;
         float fnum = 0;
@@ -160,12 +208,8 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // an array of lines
         Point[] points = null;
-
-        // creates a file and a path
-        File file = new File("default.mze");
-        Path path = Paths.get(file.getPath());
-
-        // a 4 byte array, used for converting to ints or floats
+        
+     // a 4 byte array, used for converting to ints or floats
         byte[] b = new byte[4];
 
         // try catch for reading from the file
@@ -260,41 +304,12 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         } catch (IOException ioe) {
             System.out.println("File not read\n");
-        }
-
-        // Sets the initial tile state for the reset button
-        if (newGame == true) {
-            shuffleArray(tiles);
-            for (int i = 0; i < tiles.length; i++) {
-                Main.initialTileState[i] = new Tile(tiles[i]);
-                Main.initialTileState[i].makeLive();
-            }
-        } else {
-            for (int i = 0; i < tiles.length; i++) {
-                tiles[i] = new Tile(Main.initialTileState[i]);
-                tiles[i].makeLive();
+            tiles = new Tile[16];
+            for(int i = 0; i < 16; ++i){
+                tiles[i] = new Tile(-1);
             }
         }
-
-        if (Main.verbose) for (Tile t : tiles)
-            t.debugPrint();
-
-        // nested for loop to iterate through the grid (9 rows and 7 columns)
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                // if the first cell is selected call the addButtons method
-                if (i == 0 && j == 0) {
-                    this.addButtons(basic);
-                } else if (i == 0 && j > 2 || i == 1) {
-                    emptyRow(basic, i, j, tiles);
-                } else if (j == 0 || j == 7 && i > 0) {
-                    sidePanels(basic, i, j, tiles);
-                } else if (i > 3 && i < 8 && j > 1 && j < 6) {
-                    centerTiles(basic, i, j);
-                }
-            }
-        }
-    }
+       }
 
     // if anything besides the first 3 cells of row 1 or any of row
     // 2 are selected add empty cells to the board
@@ -404,6 +419,9 @@ public class GameWindow extends JFrame implements ActionListener {
         // sets the orientation for the tiles.
         for (int i = 0; i < orientArray.length; ++i) {
             tiles[i].setOrient((int) orientArray[i]);
+            if(tiles[i].getID() == -1){
+                tiles[i].makeEmpty();
+            }
         }
 
     }
@@ -479,6 +497,48 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         }
     }
+    
+    /**
+     **********************CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
+     * @author Colin Riley
+     * user enters a file name, .mze is added to it.  array of bytes is written
+     * to created file of that name
+     * @param outByte
+     * @throws IOException
+     * 
+     */
+    public static void writeFile(byte[] outByte) throws IOException{
+        FileOutputStream fos = null;
+        
+        
+        try{
+            @SuppressWarnings("resource")
+            Scanner reader = new Scanner(System.in);  // Reading from System.in
+            System.out.println("Enter a File name: ");
+            String s = reader.nextLine(); // Scans the next token of the input as an int.
+            s += ".mze";
+            fos = new FileOutputStream(s);
+            fos.write(outByte);
+        }catch (IOException ioe) {
+            System.out.println("File failed to write\n");
+        }
+        finally{
+            fos.close();
+        } 
+    }
+    
+    /**
+     * @author Colin Riley
+     * function that adds 4byte arrays to a larger byte array
+     * @param outByte
+     * @param ob
+     * @param i
+     */
+    public static void bArrTob2Arr(byte[] outByte, byte[] ob, int i){
+        for(int k =0; k<4; ++k){
+            outByte[i+k] = ob[k];
+        }
+    }
 
     /**
      * @author Java2s.com Following code taken from
@@ -495,5 +555,41 @@ public class GameWindow extends JFrame implements ActionListener {
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
+    }
+    
+    public static String byteArrayToHexString(byte[] b) {
+        StringBuffer sb = new StringBuffer(b.length * 2);
+        for (int i = 0; i < b.length; i++) {
+          int v = b[i] & 0xff;
+          if (v < 16) {
+            sb.append('0');
+          }
+          sb.append(Integer.toHexString(v));
+        }
+        return sb.toString().toUpperCase();
+      }
+    
+    public static byte[] convertIntToByteArray(int value) {
+        byte[] bytes = new byte[4];
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        buffer.putInt(value);
+        return buffer.array();
+    }
+    
+    public static byte[] convertFloatToByteArray(float value) {
+        byte[] bytes = new byte[4];
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        buffer.putFloat(value);
+        return buffer.array();
+    }
+    
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                                 + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 };
