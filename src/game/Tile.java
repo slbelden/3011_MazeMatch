@@ -59,6 +59,7 @@ public class Tile extends JLabel implements MouseListener {
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
+        this.setMinimumSize(this.getPreferredSize());
         setVisible(true);
         setBorder(border);
 
@@ -75,6 +76,7 @@ public class Tile extends JLabel implements MouseListener {
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
+        this.setMinimumSize(this.getPreferredSize());
         setVisible(true);
         setBorder(border);
 
@@ -88,6 +90,7 @@ public class Tile extends JLabel implements MouseListener {
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
+        this.setMinimumSize(this.getPreferredSize());
         setVisible(true);
         setBorder(border);
 

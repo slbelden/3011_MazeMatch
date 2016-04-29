@@ -69,6 +69,8 @@ public class GameWindow extends JFrame implements ActionListener {
         super(s);
         GridBagLayout gbl = new GridBagLayout();
         setLayout(gbl);
+        this.setSize(new Dimension(900, 1000));
+        this.setResizable(false);
     }
 
     /**
@@ -108,11 +110,21 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author Colin Riley
      */
     public void reset(){ 
-        Main.game.dispose();
+    	
+    	// when reset is pressed, it pulls the window data here
+    	int windowWidth =  Main.game.getWidth();
+    	int windowHeight = Main.game.getHeight();
+    	int x = Main.game.getX();
+    	int y = Main.game.getY();
+    	
+    	// tears down the window and makes a new one
+    	Main.game.dispose();
         Main.game = new GameWindow("Group E Maze");
 
-        Main.game.setSize(new Dimension(900, 1000));
+        // Main.game.setSize(new Dimension(900, 1000));
         Main.game.setResizable(false);
+        // sets the window x and y to the original locations
+        Main.game.setBounds(x, y, windowWidth, windowHeight);
         
         Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Main.game.getContentPane().setBackground(Color.cyan);
@@ -311,6 +323,7 @@ public class GameWindow extends JFrame implements ActionListener {
         // create a blank label, set its size, and it to the grid
         JLabel label = new JLabel("");
         label.setPreferredSize(new Dimension(100, 45));
+        label.setMinimumSize(label.getPreferredSize());
         this.add(label, basic);
     }
     
@@ -337,17 +350,11 @@ public class GameWindow extends JFrame implements ActionListener {
         // set the cell
         basic.gridx = j;
         basic.gridy = i;
-        
-        /*
-        // Computer Screen 
-        Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-        basic.gridheight = (int) screenDim.getHeight();
-        basic.gridwidth = (int) screenDim.getWidth();
-        */
     
         // create a panel, set its size and border, then add to grid
         Tile panel = new Tile(-1);
         panel.setPreferredSize(new Dimension(100, 100));
+        panel.setMinimumSize(panel.getPreferredSize());
         panel.makeEmpty();
         this.add(panel, basic);
         grid[gridCount] = panel;
@@ -370,18 +377,21 @@ public class GameWindow extends JFrame implements ActionListener {
         // create new buttons for newButton, resetButton, and quitButton
         // set their text, size, and action command
 
-        newButton = new JButton("New Game");
+        newButton = new JButton("File");
         newButton.setPreferredSize(new Dimension(100, 30));
+        newButton.setMinimumSize(newButton.getPreferredSize());
         newButton.setActionCommand("new");
         newButton.addActionListener(this);
 
         resetButton = new JButton("Reset");
         resetButton.setPreferredSize(new Dimension(100, 30));
+        resetButton.setMinimumSize(resetButton.getPreferredSize());
         resetButton.setActionCommand("reset");
         resetButton.addActionListener(this);
 
         quitButton = new JButton("Quit");
         quitButton.setPreferredSize(new Dimension(100, 30));
+        quitButton.setMinimumSize(quitButton.getPreferredSize());
         quitButton.setActionCommand("exit");
         quitButton.addActionListener(this);
 
