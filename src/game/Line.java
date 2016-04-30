@@ -3,7 +3,6 @@
  * Immutable after construction.
  * 
  * @author Stephen Belden
- * @version April 28, 2016
  *
  */
 
