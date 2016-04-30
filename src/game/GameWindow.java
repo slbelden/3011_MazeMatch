@@ -50,15 +50,18 @@ public class GameWindow extends JFrame implements ActionListener {
             loadButton;
 
     // Data used for game logic
-    public static Tile lastClicked;
+    private static Tile lastClicked;
 
     // creates an array of tiles
-    public static Tile[] tiles = null;
-    public static Tile[] grid = new Tile[16];
-    public byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
-    public int gridCount = 0;
+    private static Tile[] tiles = null;
+    private static Tile[] grid = new Tile[16];
+    
+    // Data for saving and loading
+    private byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
+    private int gridCount = 0;
+    private boolean played = false;
 
-    public GridBagConstraints basic = new GridBagConstraints();
+    private GridBagConstraints basic = new GridBagConstraints();
 
     /**
      * Constructor: Sets the window name using super() and changes the layout
@@ -110,14 +113,31 @@ public class GameWindow extends JFrame implements ActionListener {
         }
     }
 
-    public void saveGame() {
-        fileOutArray();
-        try {
-            writeFile(outByte);
-        } catch (IOException e) {
-            System.out.println("Failed to write to file.");
-            e.printStackTrace();
+    public void loadGame() {
+        int n = -1;
+        if (played) {
+            String[] options = { "Save", "Don't Save", "Cancel" };
+            n = JOptionPane.showOptionDialog(this,
+                    "Do you want to save your current game?",
+                    "Save?",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[2]);
         }
+        switch (n) {
+        case 0:
+            saveGame();
+            break;
+        case 1:
+            // This is where we would load the game or create a new game
+            reset(); // temp
+            break;
+        default:
+            break; // and do nothing else
+        }
+        
         /*
          * Main.game.dispose(); Main.game = new GameWindow("Group E Maze");
          * Main.game.setSize(new Dimension(900, 1000));
@@ -131,9 +151,15 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * @author James Scott
      */
-    public void loadGame() {
-        // load game
-        reset();
+    public void saveGame() {
+        // This is where we would bring up the file chooser
+        fileOutArray();
+        try {
+            writeFile(outByte);
+        } catch (IOException e) {
+            System.out.println("Failed to write to file.");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -730,11 +756,11 @@ public class GameWindow extends JFrame implements ActionListener {
         this.add(quitButton, basic);
 
         basic.gridx = 0;
-        basic.gridy = 2;
+        basic.gridy = 1;
         this.add(saveButton, basic);
 
         basic.gridx = 1;
-        basic.gridy = 2;
+        basic.gridy = 1;
         this.add(loadButton, basic);
     }
 
@@ -815,6 +841,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked.makeLive();
                 Main.game.repaint();
                 lastClicked = null;
+                played = true;
                 // Case in which two empty game board positions are clicked
             } else if (clickedTile.isEmpty() == true &&
                     lastClicked.isEmpty() == true) {
@@ -835,14 +862,17 @@ public class GameWindow extends JFrame implements ActionListener {
                 clickedTile.switchState();
                 lastClicked.switchState();
                 lastClicked = null;
+                played = true;
 
-                System.out.println("grid");
-                for (Tile t : grid) {
-                    System.out.println(t.getID());
-                }
-                System.out.println("tiles");
-                for (Tile t : tiles) {
-                    System.out.println(t.getID());
+                if (Main.verbose) {
+                    System.out.println("grid");
+                    for (Tile t : grid) {
+                        System.out.println(t.getID());
+                    }
+                    System.out.println("tiles");
+                    for (Tile t : tiles) {
+                        System.out.println(t.getID());
+                    }
                 }
             }
         }
