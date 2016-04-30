@@ -129,13 +129,23 @@ public class GameWindow extends JFrame implements ActionListener {
         switch (n) {
         case 0:
             saveGame();
-            break;
         case 1:
-            // This is where we would load the game or create a new game
-            reset(); // temp
+        case -1:
+            final JFileChooser chose = new JFileChooser();
+            chose.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            final String path;
+            int response = chose.showOpenDialog(this);
+            if (response == JFileChooser.APPROVE_OPTION) {
+                File openFile = chose.getSelectedFile();
+                path = openFile.getPath();
+                // TODO:
+                // This is where we would use path to read the correct file
+                System.out.println("If we could read files, we would be reading:");
+                System.out.println(path);
+            }
             break;
         default:
-            break; // and do nothing else
+            break; // Cancel option, so do nothing else
         }
         
         /*
