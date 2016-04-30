@@ -135,6 +135,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author James Scott
      */
     public void loadGame() {
+        // load game
         reset();
     }
 
@@ -167,8 +168,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * @author Colin Riley
-     * @author Stepen Belden
      */
     public void setUp(Boolean newGame) {
         // Need to play around with the dimensions and the grid x/y values
@@ -183,8 +182,12 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipadx = 0;
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
-        // comment this out if you have 1000px or more of vertical space
-        // basic.gridheight = 2;
+        // basic.gridheight = 2; // comment this out
+
+        /**
+         * @author Colin Riley work on tiles, grid, and reading from file
+         * @author Stepen Belden (code cleanup)
+         */
 
         // creates a file and a path
         File file = new File("default.mze");
@@ -228,9 +231,6 @@ public class GameWindow extends JFrame implements ActionListener {
         }
     }
 
-    /**
-     * @author Colin Riley
-     */
     public static void readFromFile(File file, Path path) {
 
         // data containers
@@ -365,9 +365,6 @@ public class GameWindow extends JFrame implements ActionListener {
         }
     }
 
-    /**
-     * @author Colin Riley
-     */
     public void fileOutArray() {
         byte[] ob = new byte[4];
         int byteCount = 0;
@@ -578,6 +575,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // set the cells to the first row, and the first 3 cells of that
         basic.gridy = 0;
+
         basic.gridx = 0;
         this.add(fileButton, basic);
 
@@ -596,6 +594,7 @@ public class GameWindow extends JFrame implements ActionListener {
         this.add(loadButton, basic);
     }
 
+    //
     private void shuffleArray(Tile[] tiles) {
         // shuffle the tile array. Create a list with the array then use
         // shuffle. Then convert back.
