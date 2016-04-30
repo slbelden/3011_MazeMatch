@@ -17,6 +17,8 @@
 package game;
 
 import java.awt.*;
+import java.io.File;
+
 import javax.swing.*;
 
 /**
@@ -24,6 +26,7 @@ import javax.swing.*;
  */
 public class Main {
     // Globally accessible:
+    public static File defaultPath = new File("default.mze");
 
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
@@ -46,7 +49,7 @@ public class Main {
         // Answer is, have the "game" do it.
         game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         game.getContentPane().setBackground(Color.cyan);
-        game.setUp(true);
+        game.setUp(defaultPath, true, true);
 
         game.setVisible(true);
 
