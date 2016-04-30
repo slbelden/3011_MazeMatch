@@ -1,14 +1,10 @@
 /**
- * Template:
- * @author Kim Buckner
- * 
- * Current Version:
  * @author James Scott
  * @author Colin Riley
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 22, 2016
+ * @version April 29, 2016
  *
  * This class Handles tasks and data that are the same in every tile.
  */
@@ -36,19 +32,19 @@ import javax.swing.border.Border;
  */
 public class Tile extends JLabel implements MouseListener {
     // Avoid compiler complaints
-    private static final long   serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 
     // Instance Variables
-    private int                 ID;
-    private Line[]              lines;
-    private boolean             isEmpty;  // True iff this tile is a blank game
-                                          // board space
-    private int                 orient; // 0-3 multiplied by 90 when used
+    private int ID;
+    private Line[] lines;
+    private boolean isEmpty; // True iff this tile is a blank game
+                             // board space
+    private int orient; // 0-3 multiplied by 90 when used
 
     // Constants
-    private static final Border border           = BorderFactory
+    private static final Border border = BorderFactory
             .createLineBorder(Color.white, 1);
-    private static final Border NoBorder         = BorderFactory
+    private static final Border NoBorder = BorderFactory
             .createLineBorder(Color.black, 0);
 
     // Constructor for a tile, takes id and array of lines
@@ -65,14 +61,14 @@ public class Tile extends JLabel implements MouseListener {
 
         addMouseListener(this);
     };
-    
+
     // copy constructor
     public Tile(Tile in) {
         ID = in.ID;
         lines = in.lines;
         isEmpty = in.isEmpty;
         orient = in.orient;
-        
+
         setBackground(Color.white);
         setOpaque(true);
         setPreferredSize(new Dimension(100, 100));
@@ -116,8 +112,8 @@ public class Tile extends JLabel implements MouseListener {
     public void setOrient(int x) {
         orient = x;
     }
-    
-    public void incOrient(){
+
+    public void incOrient() {
         orient++;
     }
 
@@ -138,7 +134,7 @@ public class Tile extends JLabel implements MouseListener {
             System.out.println("Attempting to redraw tile " + ID + "...");
         Graphics2D g2 = (Graphics2D) g;
         AffineTransform at = g2.getTransform();
-        at.rotate(Math.toRadians(orient* 90), 50, 50);
+        at.rotate(Math.toRadians(orient * 90), 50, 50);
         g2.setTransform(at);
         super.paintComponent(g2);
         if (lines != null) {
@@ -150,8 +146,8 @@ public class Tile extends JLabel implements MouseListener {
                 g2.draw(line1);
             }
         }
-        //if (Main.verbose)
-        //    System.out.println("Tile " + ID + " was repainted");
+        // if (Main.verbose)
+        // System.out.println("Tile " + ID + " was repainted");
     }
 
     /**
@@ -235,11 +231,12 @@ public class Tile extends JLabel implements MouseListener {
      */
     @Override
     public void mousePressed(MouseEvent arg0) {
-        if (SwingUtilities.isLeftMouseButton(arg0)) 
-            { Main.game.setLeftClicked(this); }
-        else if (SwingUtilities.isRightMouseButton(arg0)) 
-            { Main.game.setRightClicked(this); }
-        if(Main.verbose) {
+        if (SwingUtilities.isLeftMouseButton(arg0)) {
+            Main.game.setLeftClicked(this);
+        } else if (SwingUtilities.isRightMouseButton(arg0)) {
+            Main.game.setRightClicked(this);
+        }
+        if (Main.verbose) {
             System.out.print("initialTileState ID's : ");
             for (Tile t : Main.initialTileState) {
                 System.out.print(t.getID() + ", ");

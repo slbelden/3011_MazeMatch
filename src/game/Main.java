@@ -8,10 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 22, 2016
- *
- * A starting point for the COSC 3011 programming assignment
- * Probably need to fix a bunch of stuff, but this compiles and runs.
+ * @version April 29, 2016
  * 
  * The version of Main.java we are using now is largely unmodified from
  * the original.
@@ -27,14 +24,14 @@ import javax.swing.*;
  */
 public class Main {
     // Globally accessible:
-    
+
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
     public static boolean verbose = true;
-    
+
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
-    
+
     // A game state needs to be stored globally for the reset button,
     // so that the same state can be restored when the gameWindow is recreated
     public static Tile[] initialTileState = new Tile[16];
@@ -42,11 +39,11 @@ public class Main {
     public static void main(String[] args) {
         // This is the play area
         game = new GameWindow("Group E Maze");
-        
+
         // have to override the default layout to reposition things!!!!!!!
-        //game.setSize(new Dimension(900, 1000));
-        //game.setResizable(false);
-        
+        // game.setSize(new Dimension(900, 1000));
+        // game.setResizable(false);
+
         // So the debate here was, do I make the GameWindow object the game
         // or do I make main() the game, manipulating a window?
         // Should GameWindow methods know what they store?
