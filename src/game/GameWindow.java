@@ -178,6 +178,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * @author Shaya Wolf
+     * @author Stephen Belden
      */
     public boolean saveGame() {
         boolean bool = false;
@@ -199,6 +200,7 @@ public class GameWindow extends JFrame implements ActionListener {
             if (n == 0) {
                 try {
                     writeFile(path, fileOutArray());
+                    played = false;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
