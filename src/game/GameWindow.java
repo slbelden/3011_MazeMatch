@@ -13,11 +13,6 @@
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
  *
- * Three buttons at the top of the game board have been put in place.
- * The only one that should do anything is Quit.
- *
- * The 4x4 grid of tiles is in place.
- * The two side columns that hold unused tiles are in place.
  */
 
 package game;
@@ -38,7 +33,7 @@ import java.util.List;
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
     public static final long serialVersionUID = 1;
-    
+
     // the hex string read at the top of the file
     private static String hexString = "";
 
@@ -53,7 +48,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private static Tile[] tiles = new Tile[16];
     private static Tile[] grid = new Tile[16];
 
-    // Data for determine when to prompt the user about saving
+    // Data for determining when to prompt the user about saving
     private boolean played = false;
 
     // Layout
@@ -184,6 +179,7 @@ public class GameWindow extends JFrame implements ActionListener {
         if (response == JFileChooser.CANCEL_OPTION) {
             // Do nothing
         } else if (chose.getSelectedFile().exists()) {
+            // If the file already exists:
             int n = -1;
             File file = chose.getSelectedFile();
             String path = file.getAbsolutePath();
@@ -194,16 +190,20 @@ public class GameWindow extends JFrame implements ActionListener {
                     "Overwrite?", JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
             if (n == 0) {
+                // "Yes" option
                 try {
                     writeFile(path, fileOutArray());
+                    // Don't ask to save again until another move
                     played = false;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
+                // Keep trying to save the game until Cancel or Approve
                 saveGame();
             }
         } else if (response == JFileChooser.APPROVE_OPTION) {
+            // Error-free save case
             File file = chose.getSelectedFile();
             String path = file.getAbsolutePath();
             try {
@@ -212,12 +212,14 @@ public class GameWindow extends JFrame implements ActionListener {
                 e.printStackTrace();
             }
             bool = true;
-            played = false; // Don't ask to save again until another move
+            // Don't ask to save again until another move
+            played = false;
         } else {
             JOptionPane.showMessageDialog(this,
                     "An error occured while trying to save the file.",
                     "Save Error", JOptionPane.ERROR_MESSAGE);
-            saveGame(); // Try until Cancel or Approve
+            // Try until Cancel or Approve
+            saveGame();
         }
         return bool;
     }
@@ -232,21 +234,21 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     private void newWindow() {
-        // when reset is pressed, it pulls the window data here
+        // When reset is pressed, it pulls the window position data here
         int windowWidth = Main.game.getWidth();
         int windowHeight = Main.game.getHeight();
         int x = Main.game.getX();
         int y = Main.game.getY();
 
-        // tears down the window and makes a new one
+        // Tears down the window and makes a new one
         Main.game.dispose();
         Main.game = new GameWindow("Group E Maze");
-
-        // Main.game.setSize(new Dimension(900, 1000));
         Main.game.setResizable(false);
-        // sets the window x and y to the original locations
+
+        // Sets the window x and y to the original locations
         Main.game.setBounds(x, y, windowWidth, windowHeight);
 
+        // Window appearance and behavior
         Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Main.game.getContentPane().setBackground(Color.cyan);
         Main.game.setVisible(true);
@@ -254,16 +256,16 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * @author Colin Riley work on tiles, grid, and reading from file
-     * @author Stepen Belden (code cleanup)
+     * @author Colin Riley
+     * @author Stepen Belden
+     * @author Shaya Wolf
+     * @author James Scott
      */
     public void setUp(File file, boolean newGame, boolean shuffle) {
+        // Location holder for iterating through the GridBag
         int gridCount = 0;
 
-        // Need to play around with the dimensions and the grid x/y values
-        // These constraints are going to be added to the pieces/parts I
-        // stuff into the "GridBag".
-
+        // GridBag setup
         basic.anchor = GridBagConstraints.FIRST_LINE_START;
         basic.gridx = 0;
         basic.gridy = 0;
@@ -272,7 +274,8 @@ public class GameWindow extends JFrame implements ActionListener {
         basic.ipadx = 0;
         basic.ipady = 0;
         basic.fill = GridBagConstraints.RELATIVE;
-        // basic.gridheight = 2; // comment this out
+        // TODO: Fix for low-resolution. Remove before final version.
+        // basic.gridheight = 2;
 
         // Sets the initial tile state for the reset button
         if (newGame == true) {
@@ -286,14 +289,15 @@ public class GameWindow extends JFrame implements ActionListener {
             if (shuffle)
                 shuffleArray(tiles);
             for (int i = 0; i < tiles.length; i++) {
-                // System.out.println("tile id " + tiles[i].getID());
+                if (Main.verbose)
+                    System.out.println("tile id " + tiles[i].getID());
                 Main.initialTileState[i] = new Tile(tiles[i]);
                 if (Main.initialTileState[i].getID() != -1)
                     Main.initialTileState[i].makeLive();
                 else
                     Main.initialTileState[i].makeEmpty();
                 int ID = grid[i].getID();
-                System.out.println("grid id" + ID);
+                if (Main.verbose) System.out.println("grid id" + ID);
                 Main.initialGridState[i] = new Tile(grid[i]);
                 if (Main.initialGridState[i].getID() != -1)
                     Main.initialGridState[i].makeLive();
@@ -312,12 +316,10 @@ public class GameWindow extends JFrame implements ActionListener {
                     grid[i].makeLive();
                 else
                     grid[i].makeEmpty();
-
             }
         }
 
-        if (Main.verbose)
-            for (Tile t : tiles)
+        if (Main.verbose) for (Tile t : tiles)
             t.debugPrint();
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
@@ -440,8 +442,7 @@ public class GameWindow extends JFrame implements ActionListener {
                             Point p = new Point();
                             p.setLocation(x, y);
                             points[numPoints] = p;
-                            if (Main.verbose)
-                                System.out.println("point: " + p);
+                            if (Main.verbose) System.out.println("point: " + p);
                             Line[] lines = new Line[numXY / 4];
                             int tempLineCount = 0;
                             for (int k = 0; k < numXY / 2; k += 2) {
@@ -497,7 +498,8 @@ public class GameWindow extends JFrame implements ActionListener {
                         if (count == -2) {
                             tileID = convertToInt(b);
 
-                            System.out.println("tileOrGrid " + tileOrGrid);
+                            if (Main.verbose)
+                                System.out.println("tileOrGrid " + tileOrGrid);
                             if (tileOrGrid < 16) {
                                 tiles[tileOrGrid] = new Tile(tileID);
                                 if (tileID != -1) {
@@ -594,7 +596,6 @@ public class GameWindow extends JFrame implements ActionListener {
                         }
                     }
                 }
-
             }
 
             if (hexString.equals("CAFEBEEF") || numTiles == 16) {
@@ -829,7 +830,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // set the cells to the first row, and the first 3 cells of that
         basic.gridy = 0;
-
         basic.gridx = 0;
         this.add(fileButton, basic);
 
@@ -861,8 +861,8 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // create an array of objects/ints for orientation. create list from
         // this and then convert back to array.
-        Object[] orientArray = { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3,
-                3 };
+        Object[] orientArray =
+                { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
         List<Object> orientList = Arrays.asList(orientArray);
 
         Collections.shuffle(orientList);
@@ -963,7 +963,7 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     ********************** CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
+     * TODO: CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
      * @author Colin Riley user enters a file name, .mze is added to it. array
      *         of bytes is written to created file of that name
      * @param outByte
@@ -985,6 +985,7 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
+     * TODO: Rename this function
      * @author Colin Riley function that adds 4byte arrays to a larger byte
      *         array
      * @param outByte
