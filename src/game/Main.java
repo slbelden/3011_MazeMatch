@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 29, 2016
+ * @version May 2, 2016
  * 
  * The version of Main.java we are using now is largely unmodified from
  * the original.
@@ -16,13 +16,16 @@
 
 package game;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
- * @author Kim Buckner Modifications by the group as a whole
+ * Template by:
+ * @author Kim Buckner
  */
 public class Main {
     // Globally accessible:
@@ -43,28 +46,14 @@ public class Main {
     public static void main(String[] args) {
         // This is the play area
         game = new GameWindow("Group E Maze");
-
-        // So the debate here was, do I make the GameWindow object the game
-        // or do I make main() the game, manipulating a window?
-        // Should GameWindow methods know what they store?
-        // Answer is, have the "game" do it.
         game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         game.getContentPane().setBackground(Color.cyan);
         game.setUp(defaultPath, true, true);
-
         game.setVisible(true);
 
         try {
-            // The 4 that installed on Linux here
-            // May have to test on Windows boxes to see what is there.
             UIManager.setLookAndFeel(
                     "javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            // This is the "Java" or CrossPlatform version and the default
-            // UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-            // Linux only
-            // UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-            // really old style Motif
-            // UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
         } catch (UnsupportedLookAndFeelException e) {
             // handle possible exception
         } catch (ClassNotFoundException e) {

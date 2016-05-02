@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 29, 2016
+ * @version May 2, 2016
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
@@ -37,33 +37,30 @@ import java.util.List;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
-    public static final long   serialVersionUID = 1;
+    public static final long serialVersionUID = 1;
+    
     // the hex string read at the top of the file
     private static String hexString = "";
 
-    /**
-     * Declare Buttons
-     * 
-     * @author Kim Buckner
-     */
-    public static JButton      fileButton, resetButton, quitButton, saveButton,
+    // Declare Buttons
+    public static JButton fileButton, resetButton, quitButton, saveButton,
             loadButton;
 
     // Data used for game logic
-    private static Tile        lastClicked;
+    private static Tile lastClicked;
 
-    // creates an array of tiles
-    private static Tile[]      tiles            = new Tile[16];
-    private static Tile[]      grid             = new Tile[16];
+    // creates arrays of tiles
+    private static Tile[] tiles = new Tile[16];
+    private static Tile[] grid = new Tile[16];
 
-    // Data for saving and loading
-    private boolean            played           = false;
+    // Data for determine when to prompt the user about saving
+    private boolean played = false;
 
-    private GridBagConstraints basic            = new GridBagConstraints();
+    // Layout
+    private GridBagConstraints basic = new GridBagConstraints();
 
     /**
      * Constructor: Sets the window name using super() and changes the layout
-     * 
      * @author Kim Buckner
      * @param s
      *            is the window title
@@ -79,7 +76,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Top buttons
-     * 
      * @author Stephen Belden
      * @param e
      *            is the ActionEvent BTW can ask the event for the name of the
@@ -258,11 +254,10 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * 
      * @author Colin Riley work on tiles, grid, and reading from file
      * @author Stepen Belden (code cleanup)
      */
-    public void setUp(File file, Boolean newGame, Boolean shuffle) {
+    public void setUp(File file, boolean newGame, boolean shuffle) {
         int gridCount = 0;
 
         // Need to play around with the dimensions and the grid x/y values
@@ -284,14 +279,14 @@ public class GameWindow extends JFrame implements ActionListener {
             // reads from default on initial run. Adds value to the tiles and
             // draws lines on them
             readFromFile(file);
-            
-            if(hexString.equals("CAFEBEEF"))
+
+            if (hexString.equals("CAFEBEEF"))
                 shuffle = true;
-            
+
             if (shuffle)
                 shuffleArray(tiles);
             for (int i = 0; i < tiles.length; i++) {
-                //System.out.println("tile id " + tiles[i].getID());
+                // System.out.println("tile id " + tiles[i].getID());
                 Main.initialTileState[i] = new Tile(tiles[i]);
                 if (Main.initialTileState[i].getID() != -1)
                     Main.initialTileState[i].makeLive();
@@ -323,7 +318,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         if (Main.verbose)
             for (Tile t : tiles)
-                t.debugPrint();
+            t.debugPrint();
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
@@ -401,8 +396,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
 
                 if (hexString.equals("CAFEBEEF")) {
-                    if (i == 0) {
-                    } else if (i == 4) {
+                    if (i == 0) {} else if (i == 4) {
                         num = convertToInt(b);
                         if (Main.verbose)
                             System.out.println("Num Tiles " + num);
@@ -491,8 +485,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
                 // cafedeed was read
                 else {
-                    if (i == 0) {
-                    } else if (i == 4) {
+                    if (i == 0) {} else if (i == 4) {
                         numTiles = convertToInt(b);
                         tiles = new Tile[16];
                         grid = new Tile[16];
@@ -507,28 +500,25 @@ public class GameWindow extends JFrame implements ActionListener {
                             System.out.println("tileOrGrid " + tileOrGrid);
                             if (tileOrGrid < 16) {
                                 tiles[tileOrGrid] = new Tile(tileID);
-                                if(tileID != -1){
+                                if (tileID != -1) {
                                     tiles[tileOrGrid].makeLive();
                                     ++count;
-                                }
-                                else{
+                                } else {
                                     tiles[tileOrGrid].makeEmpty();
                                     count = -2;
                                     ++tileOrGrid;
                                 }
-                            } else if(tileOrGrid > 15){
-                                grid[tileOrGrid-16] = new Tile(tileID);
-                                if(tileID != -1){
-                                    grid[tileOrGrid-16].makeLive();
+                            } else if (tileOrGrid > 15) {
+                                grid[tileOrGrid - 16] = new Tile(tileID);
+                                if (tileID != -1) {
+                                    grid[tileOrGrid - 16].makeLive();
                                     ++count;
-                                }
-                                else{
-                                    grid[tileOrGrid-16].makeEmpty();
+                                } else {
+                                    grid[tileOrGrid - 16].makeEmpty();
                                     count = -2;
                                     ++tileOrGrid;
                                 }
                             }
-                            
 
                         }
 
@@ -536,21 +526,19 @@ public class GameWindow extends JFrame implements ActionListener {
                             // orient
                             if (count == -1 && tileID != -1) {
                                 tileOrient = convertToInt(b);
-                                if (tileOrGrid < 16){
+                                if (tileOrGrid < 16) {
                                     tiles[tileOrGrid].setOrient(tileOrient);
-                                }
-                                else{
-                                    grid[tileOrGrid-16].setOrient(tileOrient);
+                                } else {
+                                    grid[tileOrGrid - 16].setOrient(tileOrient);
                                 }
                                 ++count;
-                            }
-                            else if(count == 0){
+                            } else if (count == 0) {
                                 num = convertToInt(b);
                                 numXY = num * 4;
                                 points = new Point[num * 2];
                                 ++count;
                             }
-                            
+
                             else if (count == numXY && tileID != -1) {
                                 fnum = convertToFloat(b);
                                 y = fnum;
@@ -566,19 +554,20 @@ public class GameWindow extends JFrame implements ActionListener {
                                             points[k + 1]);
                                     tempLineCount++;
                                 }
-                                
+
                                 if (tileOrGrid < 16)
                                     tiles[tileOrGrid].setLines(lines);
                                 else
-                                    grid[tileOrGrid-16].setLines(lines);
-                                
+                                    grid[tileOrGrid - 16].setLines(lines);
+
                                 ++tileOrGrid;
                                 countxy = 0;
                                 count = -2;
                                 numPoints = 0;
                             }
-                             
-                            else if (count < numXY && count > 0 && tileID != -1){
+
+                            else if (count < numXY && count > 0
+                                    && tileID != -1) {
                                 fnum = convertToFloat(b);
 
                                 // if the count is even set x
@@ -587,7 +576,8 @@ public class GameWindow extends JFrame implements ActionListener {
                                     ++countxy;
                                 }
 
-                                // if the count is odd set y and set location of p.
+                                // if the count is odd set y and set location of
+                                // p.
                                 // add p to points
                                 else {
                                     y = fnum;
@@ -795,7 +785,6 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
-     * 
      * @author Colin Riley
      * @param basic
      *            This doesn't need to be a function because it's only called
@@ -905,7 +894,6 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Handles the game logic for swapping tiles only after 2 different tiles
      * have been clicked.
-     * 
      * @author Stephen Belden
      * @param clickedTile
      *            is the tile that was most recently left-clicked
@@ -976,7 +964,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      ********************** CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
-     * 
      * @author Colin Riley user enters a file name, .mze is added to it. array
      *         of bytes is written to created file of that name
      * @param outByte

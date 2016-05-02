@@ -4,7 +4,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version April 29, 2016
+ * @version May 2, 2016
  *
  * This class Handles tasks and data that are the same in every tile.
  */
@@ -35,19 +35,21 @@ public class Tile extends JLabel implements MouseListener {
     private static final long serialVersionUID = 1;
 
     // Instance Variables
-    private int ID;
-    private Line[] lines;
-    private boolean isEmpty; // True iff this tile is a blank game
-                             // board space
+    private int ID; // 0-15, in the original (correct) order of the tiles
+    private Line[] lines; // Holds maze lines, read from file
+    private boolean isEmpty; // True iff this tile is a blank game board space
     private int orient; // 0-3 multiplied by 90 when used
 
     // Constants
-    private static final Border border = BorderFactory
-            .createLineBorder(Color.white, 1);
-    private static final Border NoBorder = BorderFactory
-            .createLineBorder(Color.black, 0);
+    private static final Border border =
+            BorderFactory.createLineBorder(Color.white, 1);
+    private static final Border noBorder =
+            BorderFactory.createLineBorder(Color.black, 0);
 
-    // Constructor for a tile, takes id and array of lines
+    /**
+     * Constructor for a tile, takes id and array of lines
+     * @author Shaya Wolf
+     */
     public Tile(int x, Line[] l) {
         ID = x;
         lines = l;
@@ -62,17 +64,18 @@ public class Tile extends JLabel implements MouseListener {
         addMouseListener(this);
     };
 
-    // copy constructor
+    /**
+     * Copy Constructor
+     * @author Stephen Belden
+     */
     public Tile(Tile in) {
         ID = in.ID;
-        
-        if(ID != -1)
-        {
+
+        if (ID != -1) {
             lines = in.lines;
             isEmpty = in.isEmpty;
             orient = in.orient;
         }
-        
 
         setBackground(Color.white);
         setOpaque(true);
@@ -84,7 +87,10 @@ public class Tile extends JLabel implements MouseListener {
         addMouseListener(this);
     }
 
-    // constructor for a tile takes only the id
+    /**
+     * Constructor for a tile takes only the id
+     * @author Shaya Wolf
+     */
     public Tile(int x) {
         ID = x;
 
@@ -98,14 +104,12 @@ public class Tile extends JLabel implements MouseListener {
         addMouseListener(this);
     };
 
-    // Get ID Method -- Returns the ID of a tile
-    // Given -- NA
+    // Getter and Setter methods:
+    
     public int getID() {
         return ID;
     }
 
-    // Set ID Method -- Sets the ID of a tile
-    // Given -- New ID
     public void setID(int x) {
         ID = x;
     }
@@ -129,6 +133,10 @@ public class Tile extends JLabel implements MouseListener {
     public void setLines(Line[] l) {
         lines = l;
     }
+    
+    public boolean isEmpty() {
+        return isEmpty;
+    }
 
     /**
      * @author Colin Riley
@@ -151,22 +159,12 @@ public class Tile extends JLabel implements MouseListener {
                 g2.draw(line1);
             }
         }
-        // if (Main.verbose)
-        // System.out.println("Tile " + ID + " was repainted");
     }
 
     /**
-     * @author Colin Riley
+     * Sets this tile up to display as an empty game board tile
+     * @author Stephen Belden
      */
-
-    /**
-     * @return empty
-     */
-    public boolean isEmpty() {
-        return isEmpty;
-    }
-
-    // Sets this tile up to display as an empty game board tile
     public void makeEmpty() {
         isEmpty = true;
         setBackground(Color.gray);
@@ -174,11 +172,14 @@ public class Tile extends JLabel implements MouseListener {
         setText("");
     }
 
-    // Sets this tile up to display as a real Tile
+    /**
+     * Sets this tile up to display as a real Tile
+     * @author Stephen Belden
+     */
     public void makeLive() {
         isEmpty = false;
         setBackground(Color.white);
-        setBorder(NoBorder);
+        setBorder(noBorder);
         if (Main.verbose) {
             setText("<html><span style='font-size:35px'>" + Integer.toString(ID)
                     + "</span></html>");
@@ -186,7 +187,10 @@ public class Tile extends JLabel implements MouseListener {
         setHorizontalAlignment(CENTER);
     }
 
-    // Switches tile between live and empty
+    /**
+     * Switches tile between live and empty
+     * @author Stephen Belden
+     */
     public void switchState() {
         if (isEmpty)
             makeLive();
@@ -194,32 +198,35 @@ public class Tile extends JLabel implements MouseListener {
             makeEmpty();
     }
 
-    // Makes the tile un-selected
+    /**
+     * Makes the tile un-selected
+     * @author Stephen Belden
+     */
     public void reset() {
         if (isEmpty) {
             setBackground(Color.gray);
             setBorder(border);
         } else {
             setBackground(Color.white);
-            setBorder(NoBorder);
+            setBorder(noBorder);
         }
         repaint();
     }
 
+    /**
+     * @author Stephen Belden
+     */
     public void debugPrint() {
         System.out.println("Tile with ID: " + ID + " & isEmpty = "
                 + (isEmpty ? "true" : "false") + " has orientation " + orient +
                 " holds these lines:");
-        if(ID!=-1){
+        if (ID != -1) {
             for (Line l : lines)
-                if(l != null)
+                if (l != null)
                     l.debugPrint();
         }
     }
 
-    /**
-     * @author Stephen Belden (wrote mouse and movement functions)
-     */
     @Override
     public void mouseClicked(MouseEvent arg0) {
         // Do nothing
@@ -236,7 +243,8 @@ public class Tile extends JLabel implements MouseListener {
     }
 
     /**
-     * @author Stephen Belden (wrote mouse and movement functions)
+     * @author Stephen Belden
+     * @author Colin Riley
      */
     @Override
     public void mousePressed(MouseEvent arg0) {
@@ -254,8 +262,11 @@ public class Tile extends JLabel implements MouseListener {
         }
     }
 
+    /**
+     * @author Neil Carrico
+     */
     @Override
     public void mouseReleased(MouseEvent arg0) {
-        // Do nothing
+        // Like the author of this function, this function body does nothing
     }
 }
