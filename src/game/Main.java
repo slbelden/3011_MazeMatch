@@ -30,7 +30,7 @@ public class Main {
 
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
-    public static boolean verbose = true;
+    public static boolean verbose = false;
 
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
@@ -38,6 +38,7 @@ public class Main {
     // A game state needs to be stored globally for the reset button,
     // so that the same state can be restored when the gameWindow is recreated
     public static Tile[] initialTileState = new Tile[16];
+    public static Tile[] initialGridState = new Tile[16];
 
     public static void main(String[] args) {
         // This is the play area

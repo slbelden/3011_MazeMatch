@@ -65,9 +65,14 @@ public class Tile extends JLabel implements MouseListener {
     // copy constructor
     public Tile(Tile in) {
         ID = in.ID;
-        lines = in.lines;
-        isEmpty = in.isEmpty;
-        orient = in.orient;
+        
+        if(ID != -1)
+        {
+            lines = in.lines;
+            isEmpty = in.isEmpty;
+            orient = in.orient;
+        }
+        
 
         setBackground(Color.white);
         setOpaque(true);
@@ -203,9 +208,13 @@ public class Tile extends JLabel implements MouseListener {
 
     public void debugPrint() {
         System.out.println("Tile with ID: " + ID + " & isEmpty = "
-                + (isEmpty ? "true" : "false") + " holds these lines:");
-        for (Line l : lines)
-            l.debugPrint();
+                + (isEmpty ? "true" : "false") + " has orientation " + orient +
+                " holds these lines:");
+        if(ID!=-1){
+            for (Line l : lines)
+                if(l != null)
+                    l.debugPrint();
+        }
     }
 
     /**
