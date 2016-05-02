@@ -38,6 +38,8 @@ import java.util.List;
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
     public static final long   serialVersionUID = 1;
+    // the hex string read at the top of the file
+    private static String hexString = "";
 
     /**
      * Declare Buttons
@@ -172,16 +174,6 @@ public class GameWindow extends JFrame implements ActionListener {
         default:
             break; // Cancel option, so do nothing else
         }
-
-        // New Game Code
-        /*
-         * Main.game.dispose(); Main.game = new GameWindow("Group E Maze");
-         * Main.game.setSize(new Dimension(900, 1000));
-         * Main.game.setResizable(false);
-         * Main.game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         * Main.game.getContentPane().setBackground(Color.cyan);
-         * Main.game.setUp(true); Main.game.setVisible(true);
-         */
     }
 
     /**
@@ -290,6 +282,10 @@ public class GameWindow extends JFrame implements ActionListener {
             // reads from default on initial run. Adds value to the tiles and
             // draws lines on them
             readFromFile(file);
+            
+            if(hexString.equals("CAFEBEEF"))
+                shuffle = true;
+            
             if (shuffle)
                 shuffleArray(tiles);
             for (int i = 0; i < tiles.length; i++) {
@@ -375,9 +371,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // the tile orientation
         int tileOrient = 0;
-
-        // the hex string read at the top of the file
-        String hexString = "";
 
         // used to create a point
         float x = 0, y = 0;
