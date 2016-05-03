@@ -294,7 +294,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     Main.initialTileState[i].makeLive();
                 else
                     Main.initialTileState[i].makeEmpty();
-                
+
                 Main.initialGridState[i] = new Tile(grid[i]);
                 Main.initialGridState[i].setLoc(grid[i].getLoc());
                 if (Main.initialGridState[i].getID() != -1)
@@ -304,20 +304,19 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         } else {
             for (int i = 0; i < tiles.length; i++) {
-                
+
                 tiles[i] = new Tile(Main.initialTileState[i]);
                 if (tiles[i].getID() != -1)
                     tiles[i].makeLive();
                 else
                     tiles[i].makeEmpty();
-                
+
                 grid[i] = new Tile(Main.initialGridState[i]);
-                if (grid[i].getID() != -1){
+                if (grid[i].getID() != -1) {
                     grid[i].makeLive();
-                }
-                else{
+                } else {
                     grid[i].makeEmpty();
-                    grid[i].setLoc(i+16);
+                    grid[i].setLoc(i + 16);
                 }
 
             }
@@ -349,7 +348,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @param path
      */
     public static void readFromFile(File file) {
-     // data containers
+        // data containers
         int num = 0;
         float fnum = 0;
 
@@ -359,13 +358,13 @@ public class GameWindow extends JFrame implements ActionListener {
         // how many lines does the tile have, how many points
         int numPoints = 0;
         int numXY = 0;
-        
+
         // is the loop reading an x value or a y
         int countxy = 0;
 
         // the id of the tile
         int tileID = 0;
-        
+
         int tileLoc = 0;
 
         // the tile orientation
@@ -397,22 +396,20 @@ public class GameWindow extends JFrame implements ActionListener {
                     hexString = byteArrayToHexString(b);
                 }
 
-                if (i == 0) {
-                } 
-                else if (i == 4) {
+                if (i == 0) {} else if (i == 4) {
                     num = convertToInt(b);
                     if (Main.verbose)
                         System.out.println("Num Tiles " + num);
                     tiles = new Tile[num];
                     grid = new Tile[num];
                     Main.writeTileArray = new Tile[num];
-                    for(int k = 0; k < 16; ++k){
+                    for (int k = 0; k < 16; ++k) {
                         Main.writeTileArray[k] = new Tile(-1);
                         tiles[k] = new Tile(-1);
                         tiles[k].setLoc(k);
-                        tiles[k].makeEmpty(); 
+                        tiles[k].makeEmpty();
                         grid[k] = new Tile(-1);
-                        grid[k].setLoc(k+16);
+                        grid[k].setLoc(k + 16);
                         grid[k].makeEmpty();
                     }
                 } else {
@@ -420,10 +417,9 @@ public class GameWindow extends JFrame implements ActionListener {
                     // convert the input and store in title
                     if (count == -2) {
                         tileLoc = convertToInt(b);
-                        if(hexString.equals("CAFEDEED")){
+                        if (hexString.equals("CAFEDEED")) {
                             ++count;
-                        }
-                        else{
+                        } else {
                             count += 2;
                         }
                         if (Main.verbose)
@@ -472,11 +468,11 @@ public class GameWindow extends JFrame implements ActionListener {
                                     points[k + 1]);
                             tempLineCount++;
                         }
-                       
+
                         Main.writeTileArray[tileID] = new Tile(tileID, lines);
                         Main.writeTileArray[tileID].setOrient(tileOrient);
                         Main.writeTileArray[tileID].setLoc(tileLoc);
-                        
+
                         ++tileID;
                         countxy = 0;
                         count = -2;
@@ -509,39 +505,37 @@ public class GameWindow extends JFrame implements ActionListener {
                     }
                 }
             }
-            for(int i =0; i < 16; ++i){
+            for (int i = 0; i < 16; ++i) {
                 tileLoc = Main.writeTileArray[i].getLoc();
-                if(tileLoc<16){
+                if (tileLoc < 16) {
                     tiles[tileLoc] = new Tile(Main.writeTileArray[i]);
-                    tiles[tileLoc].setOrient(Main.writeTileArray[i].getOrient());
+                    tiles[tileLoc]
+                            .setOrient(Main.writeTileArray[i].getOrient());
                     tiles[tileLoc].setLoc(tileLoc);
-                }
-                else{
-                    grid[tileLoc-16] = new Tile(Main.writeTileArray[i]);
-                    grid[tileLoc-16].setOrient(Main.writeTileArray[i].getOrient());
-                    grid[tileLoc-16].setLoc(tileLoc);
+                } else {
+                    grid[tileLoc - 16] = new Tile(Main.writeTileArray[i]);
+                    grid[tileLoc - 16]
+                            .setOrient(Main.writeTileArray[i].getOrient());
+                    grid[tileLoc - 16].setLoc(tileLoc);
                 }
             }
-            
-            for(int i = 0; i < 16; ++i){
-                if(tiles[i].isEmpty()){
+
+            for (int i = 0; i < 16; ++i) {
+                if (tiles[i].isEmpty()) {
                     tiles[i] = new Tile(-1);
                     tiles[i].setLoc(i);
                     tiles[i].makeEmpty();
                 }
-                if(grid[i].isEmpty()){
+                if (grid[i].isEmpty()) {
                     grid[i] = new Tile(-1);
-                    grid[i].setLoc(i+16);
+                    grid[i].setLoc(i + 16);
                     grid[i].makeEmpty();
                 }
             }
-/*
-            if (hexString.equals("CAFEBEEF")) {
-                for (int j = 0; j < 16; ++j) {
-                    grid[j] = new Tile(-1);
-                    grid[j].makeEmpty();
-                }
-            }*/
+            /*
+             * if (hexString.equals("CAFEBEEF")) { for (int j = 0; j < 16; ++j)
+             * { grid[j] = new Tile(-1); grid[j].makeEmpty(); } }
+             */
         }
 
         catch (IOException ioe) {
@@ -551,7 +545,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 tiles[i] = new Tile(-1);
                 tiles[i].setLoc(i);
                 grid[i] = new Tile(-1);
-                grid[i].setLoc(i+16);
+                grid[i].setLoc(i + 16);
                 grid[i].makeEmpty();
             }
         }
@@ -592,23 +586,30 @@ public class GameWindow extends JFrame implements ActionListener {
         for (int i = 0; i < 16; ++i) {
             Line[] line = Main.writeTileArray[i].getLines();
 
-            for(int k = 0; k< 16; ++k){
-                for(int j = 0; j < 16; ++j){
-                    if(Main.writeTileArray[k].getID() == tiles[j].getID()){
-                        //System.out.println("tile ID " + Main.writeTileArray[k].getID() + " = " + tiles[j].getID());
+            for (int k = 0; k < 16; ++k) {
+                for (int j = 0; j < 16; ++j) {
+                    if (Main.writeTileArray[k].getID() == tiles[j].getID()) {
+                        // System.out.println("tile ID " +
+                        // Main.writeTileArray[k].getID() + " = " +
+                        // tiles[j].getID());
                         Main.writeTileArray[k].setLoc(tiles[j].getLoc());
                         Main.writeTileArray[k].setOrient(tiles[j].getOrient());
-                        //System.out.println("loc"+Main.writeTileArray[k].getLoc() + " = " + tiles[j].getLoc());
+                        // System.out.println("loc"+Main.writeTileArray[k].getLoc()
+                        // + " = " + tiles[j].getLoc());
                     }
-                    if(Main.writeTileArray[k].getID() == grid[j].getID()){
-                        //System.out.println("grid ID"+Main.writeTileArray[k].getID() + " = " + grid[j].getID());
+                    if (Main.writeTileArray[k].getID() == grid[j].getID()) {
+                        // System.out.println("grid
+                        // ID"+Main.writeTileArray[k].getID() + " = " +
+                        // grid[j].getID());
                         Main.writeTileArray[k].setLoc(grid[j].getLoc());
                         Main.writeTileArray[k].setOrient(grid[j].getOrient());
-                        //System.out.println("loc "+Main.writeTileArray[k].getLoc() + " = " + grid[j].getLoc());
+                        // System.out.println("loc
+                        // "+Main.writeTileArray[k].getLoc() + " = " +
+                        // grid[j].getLoc());
                     }
                 }
             }
-            
+
             ob = convertIntToByteArray(Main.writeTileArray[i].getLoc());
             toFullByteArray(outByte, ob, byteCount);
             byteCount += 4;
