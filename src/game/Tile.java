@@ -35,6 +35,7 @@ public class Tile extends JLabel implements MouseListener {
     private static final long serialVersionUID = 1;
 
     // Instance Variables
+    private int loc; // the location of the tile in the grid or side
     private int ID; // 0-15, in the original (correct) order of the tiles
     private Line[] lines; // Holds maze lines, read from file
     private boolean isEmpty; // True iff this tile is a blank game board space
@@ -75,6 +76,7 @@ public class Tile extends JLabel implements MouseListener {
             lines = in.lines;
             isEmpty = in.isEmpty;
             orient = in.orient;
+            loc = in.loc;
         }
 
         setBackground(Color.white);
@@ -105,6 +107,14 @@ public class Tile extends JLabel implements MouseListener {
     };
 
     // Getter and Setter methods:
+    
+    public int getLoc() {
+        return loc;
+    }
+
+    public void setLoc(int x) {
+        loc = x;
+    }
     
     public int getID() {
         return ID;
@@ -217,12 +227,12 @@ public class Tile extends JLabel implements MouseListener {
      * @author Stephen Belden
      */
     public void debugPrint() {
-        System.out.println("Tile with ID: " + ID + " & isEmpty = "
-                + (isEmpty ? "true" : "false") + " has orientation " + orient +
-                " holds these lines:");
-        if (ID != -1) {
+        System.out.println("Tile with ID: " + ID  + " with location " + loc 
+                + " & isEmpty = " + (isEmpty ? "true" : "false") +
+                " has orientation " + orient + " holds these lines:");
+        if(ID!=-1){
             for (Line l : lines)
-                if (l != null)
+                if(l != null)
                     l.debugPrint();
         }
     }

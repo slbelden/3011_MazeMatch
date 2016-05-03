@@ -289,16 +289,14 @@ public class GameWindow extends JFrame implements ActionListener {
             if (shuffle)
                 shuffleArray(tiles);
             for (int i = 0; i < tiles.length; i++) {
-                if (Main.verbose)
-                    System.out.println("tile id " + tiles[i].getID());
                 Main.initialTileState[i] = new Tile(tiles[i]);
                 if (Main.initialTileState[i].getID() != -1)
                     Main.initialTileState[i].makeLive();
                 else
                     Main.initialTileState[i].makeEmpty();
-                int ID = grid[i].getID();
-                if (Main.verbose) System.out.println("grid id" + ID);
+                
                 Main.initialGridState[i] = new Tile(grid[i]);
+                Main.initialGridState[i].setLoc(grid[i].getLoc());
                 if (Main.initialGridState[i].getID() != -1)
                     Main.initialGridState[i].makeLive();
                 else
@@ -306,19 +304,24 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         } else {
             for (int i = 0; i < tiles.length; i++) {
+                
                 tiles[i] = new Tile(Main.initialTileState[i]);
                 if (tiles[i].getID() != -1)
                     tiles[i].makeLive();
                 else
                     tiles[i].makeEmpty();
+                
                 grid[i] = new Tile(Main.initialGridState[i]);
-                if (grid[i].getID() != -1)
+                if (grid[i].getID() != -1){
                     grid[i].makeLive();
-                else
+                }
+                else{
                     grid[i].makeEmpty();
+                    grid[i].setLoc(i+16);
+                }
+
             }
         }
-
         if (Main.verbose) for (Tile t : tiles)
             t.debugPrint();
 
@@ -346,10 +349,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @param path
      */
     public static void readFromFile(File file) {
-        // counter that changes which array is being filled
-        int tileOrGrid = 0;
-
-        // data containers
+     // data containers
         int num = 0;
         float fnum = 0;
 
@@ -359,14 +359,14 @@ public class GameWindow extends JFrame implements ActionListener {
         // how many lines does the tile have, how many points
         int numPoints = 0;
         int numXY = 0;
-
-        int numTiles = 0;
-
+        
         // is the loop reading an x value or a y
         int countxy = 0;
 
         // the id of the tile
         int tileID = 0;
+        
+        int tileLoc = 0;
 
         // the tile orientation
         int tileOrient = 0;
@@ -397,213 +397,151 @@ public class GameWindow extends JFrame implements ActionListener {
                     hexString = byteArrayToHexString(b);
                 }
 
-                if (hexString.equals("CAFEBEEF")) {
-                    if (i == 0) {} else if (i == 4) {
-                        num = convertToInt(b);
-                        if (Main.verbose)
-                            System.out.println("Num Tiles " + num);
-                        tiles = new Tile[num];
-                    } else {
-                        // the loop is going over the id of the tile
-                        // convert the input and store in title
-                        if (count == -2) {
-                            num = convertToInt(b);
-                            tileID = num;
-                            count += 2;
-                            if (Main.verbose)
-                                System.out.println("Tile ID = " + tileID);
-                        }
-
-                        /*
-                         * The loop is going over the number of lines a tile
-                         * has. It converts input, sets size of array, sets how
-                         * many lines will be read
-                         */
-                        else if (count == 0) {
-                            num = convertToInt(b);
-                            numXY = num * 4;
-                            points = new Point[num * 2];
+                if (i == 0) {
+                } 
+                else if (i == 4) {
+                    num = convertToInt(b);
+                    if (Main.verbose)
+                        System.out.println("Num Tiles " + num);
+                    tiles = new Tile[num];
+                    grid = new Tile[num];
+                    Main.writeTileArray = new Tile[num];
+                    for(int k = 0; k < 16; ++k){
+                        Main.writeTileArray[k] = new Tile(-1);
+                        tiles[k] = new Tile(-1);
+                        tiles[k].setLoc(k);
+                        tiles[k].makeEmpty(); 
+                        grid[k] = new Tile(-1);
+                        grid[k].setLoc(k+16);
+                        grid[k].makeEmpty();
+                    }
+                } else {
+                    // the loop is going over the id of the tile
+                    // convert the input and store in title
+                    if (count == -2) {
+                        tileLoc = convertToInt(b);
+                        if(hexString.equals("CAFEDEED")){
                             ++count;
-                            if (Main.verbose)
-                                System.out.println("Number of lines " + num
-                                        + ", num points = " + num * 2);
+                        }
+                        else{
+                            count += 2;
+                        }
+                        if (Main.verbose)
+                            System.out.println("Tile loc = " + tileLoc + '\n'
+                                    + "tile ID = " + tileID);
+                    }
+
+                    else if (count == -1 && hexString.equals("CAFEDEED")) {
+                        tileOrient = convertToInt(b);
+                        ++count;
+                    }
+
+                    /*
+                     * The loop is going over the number of lines a tile has. It
+                     * converts input, sets size of array, sets how many lines
+                     * will be read
+                     */
+                    else if (count == 0) {
+                        num = convertToInt(b);
+                        numXY = num * 4;
+                        points = new Point[num * 2];
+                        ++count;
+                        if (Main.verbose)
+                            System.out.println("Number of lines " + num
+                                    + ", num points = " + num * 2);
+                    }
+
+                    /*
+                     * Here, the last point for this tile is being read. This
+                     * creates and sets a point using the x and y values, y is
+                     * being read. A new tile with the Id and points is
+                     * constructed, and makeLive() is called. Counters are reset
+                     */
+                    else if (count == numXY) {
+                        fnum = convertToFloat(b);
+                        y = fnum;
+                        Point p = new Point();
+                        p.setLocation(x, y);
+                        points[numPoints] = p;
+                        if (Main.verbose)
+                            System.out.println("point: " + p);
+                        Line[] lines = new Line[numXY / 4];
+                        int tempLineCount = 0;
+                        for (int k = 0; k < numXY / 2; k += 2) {
+                            lines[tempLineCount] = new Line(points[k],
+                                    points[k + 1]);
+                            tempLineCount++;
+                        }
+                       
+                        Main.writeTileArray[tileID] = new Tile(tileID, lines);
+                        Main.writeTileArray[tileID].setOrient(tileOrient);
+                        Main.writeTileArray[tileID].setLoc(tileLoc);
+                        
+                        ++tileID;
+                        countxy = 0;
+                        count = -2;
+                        numPoints = 0;
+                    }
+
+                    // reading points. Convert input to a float
+                    else {
+                        fnum = convertToFloat(b);
+
+                        // if the count is even set x
+                        if ((countxy % 2) == 0) {
+                            x = fnum;
+                            ++countxy;
                         }
 
-                        /*
-                         * Here, the last point for this tile is being read.
-                         * This creates and sets a point using the x and y
-                         * values, y is being read. A new tile with the Id and
-                         * points is constructed, and makeLive() is called.
-                         * Counters are reset
-                         */
-                        else if (count == numXY) {
-                            fnum = convertToFloat(b);
+                        // if the count is odd set y and set location of p.
+                        // add p to points
+                        else {
                             y = fnum;
                             Point p = new Point();
                             p.setLocation(x, y);
-                            points[numPoints] = p;
-                            if (Main.verbose) System.out.println("point: " + p);
-                            Line[] lines = new Line[numXY / 4];
-                            int tempLineCount = 0;
-                            for (int k = 0; k < numXY / 2; k += 2) {
-                                lines[tempLineCount] = new Line(points[k],
-                                        points[k + 1]);
-                                tempLineCount++;
-                            }
-                            tiles[tileID] = new Tile(tileID, lines);
-                            tiles[tileID].makeLive();
-                            countxy = 0;
-                            count = -2;
-                            numPoints = 0;
-                        }
-
-                        // reading points. Convert input to a float
-                        else {
-                            fnum = convertToFloat(b);
-
-                            // if the count is even set x
-                            if ((countxy % 2) == 0) {
-                                x = fnum;
-                                ++countxy;
-                            }
-
-                            // if the count is odd set y and set location of p.
-                            // add p to points
-                            else {
-                                y = fnum;
-                                Point p = new Point();
-                                p.setLocation(x, y);
-                                if (Main.verbose)
-                                    System.out.println("point " + p);
-                                ++countxy;
-                                points[numPoints] = p;
-                                ++numPoints;
-                            }
-                            ++count;
-                        }
-                    }
-                }
-
-                // cafedeed was read
-                else {
-                    if (i == 0) {} else if (i == 4) {
-                        numTiles = convertToInt(b);
-                        tiles = new Tile[16];
-                        grid = new Tile[16];
-                        for (int j = 0; j < 16; ++j) {
-                            tiles[i] = new Tile(-1);
-                            grid[i] = new Tile(-1);
-                        }
-                    } else {
-                        if (count == -2) {
-                            tileID = convertToInt(b);
-
                             if (Main.verbose)
-                                System.out.println("tileOrGrid " + tileOrGrid);
-                            if (tileOrGrid < 16) {
-                                tiles[tileOrGrid] = new Tile(tileID);
-                                if (tileID != -1) {
-                                    tiles[tileOrGrid].makeLive();
-                                    ++count;
-                                } else {
-                                    tiles[tileOrGrid].makeEmpty();
-                                    count = -2;
-                                    ++tileOrGrid;
-                                }
-                            } else if (tileOrGrid > 15) {
-                                grid[tileOrGrid - 16] = new Tile(tileID);
-                                if (tileID != -1) {
-                                    grid[tileOrGrid - 16].makeLive();
-                                    ++count;
-                                } else {
-                                    grid[tileOrGrid - 16].makeEmpty();
-                                    count = -2;
-                                    ++tileOrGrid;
-                                }
-                            }
-
+                                System.out.println("point " + p);
+                            ++countxy;
+                            points[numPoints] = p;
+                            ++numPoints;
                         }
-
-                        else {
-                            // orient
-                            if (count == -1 && tileID != -1) {
-                                tileOrient = convertToInt(b);
-                                if (tileOrGrid < 16) {
-                                    tiles[tileOrGrid].setOrient(tileOrient);
-                                } else {
-                                    grid[tileOrGrid - 16].setOrient(tileOrient);
-                                }
-                                ++count;
-                            } else if (count == 0) {
-                                num = convertToInt(b);
-                                numXY = num * 4;
-                                points = new Point[num * 2];
-                                ++count;
-                            }
-
-                            else if (count == numXY && tileID != -1) {
-                                fnum = convertToFloat(b);
-                                y = fnum;
-                                Point p = new Point();
-                                p.setLocation(x, y);
-                                points[numPoints] = p;
-                                if (Main.verbose)
-                                    System.out.println("point: " + p);
-                                Line[] lines = new Line[numXY / 4];
-                                int tempLineCount = 0;
-                                for (int k = 0; k < numXY / 2; k += 2) {
-                                    lines[tempLineCount] = new Line(points[k],
-                                            points[k + 1]);
-                                    tempLineCount++;
-                                }
-
-                                if (tileOrGrid < 16)
-                                    tiles[tileOrGrid].setLines(lines);
-                                else
-                                    grid[tileOrGrid - 16].setLines(lines);
-
-                                ++tileOrGrid;
-                                countxy = 0;
-                                count = -2;
-                                numPoints = 0;
-                            }
-
-                            else if (count < numXY && count > 0
-                                    && tileID != -1) {
-                                fnum = convertToFloat(b);
-
-                                // if the count is even set x
-                                if ((countxy % 2) == 0) {
-                                    x = fnum;
-                                    ++countxy;
-                                }
-
-                                // if the count is odd set y and set location of
-                                // p.
-                                // add p to points
-                                else {
-                                    y = fnum;
-                                    Point p = new Point();
-                                    p.setLocation(x, y);
-                                    if (Main.verbose)
-                                        System.out.println("point " + p);
-                                    ++countxy;
-                                    points[numPoints] = p;
-                                    ++numPoints;
-                                }
-                                ++count;
-                            }
-                        }
+                        ++count;
                     }
                 }
             }
-
-            if (hexString.equals("CAFEBEEF") || numTiles == 16) {
+            for(int i =0; i < 16; ++i){
+                tileLoc = Main.writeTileArray[i].getLoc();
+                if(tileLoc<16){
+                    tiles[tileLoc] = new Tile(Main.writeTileArray[i]);
+                    tiles[tileLoc].setOrient(Main.writeTileArray[i].getOrient());
+                    tiles[tileLoc].setLoc(tileLoc);
+                }
+                else{
+                    grid[tileLoc-16] = new Tile(Main.writeTileArray[i]);
+                    grid[tileLoc-16].setOrient(Main.writeTileArray[i].getOrient());
+                    grid[tileLoc-16].setLoc(tileLoc);
+                }
+            }
+            
+            for(int i = 0; i < 16; ++i){
+                if(tiles[i].isEmpty()){
+                    tiles[i] = new Tile(-1);
+                    tiles[i].setLoc(i);
+                    tiles[i].makeEmpty();
+                }
+                if(grid[i].isEmpty()){
+                    grid[i] = new Tile(-1);
+                    grid[i].setLoc(i+16);
+                    grid[i].makeEmpty();
+                }
+            }
+/*
+            if (hexString.equals("CAFEBEEF")) {
                 for (int j = 0; j < 16; ++j) {
                     grid[j] = new Tile(-1);
                     grid[j].makeEmpty();
                 }
-            }
+            }*/
         }
 
         catch (IOException ioe) {
@@ -611,7 +549,9 @@ public class GameWindow extends JFrame implements ActionListener {
             tiles = new Tile[16];
             for (int i = 0; i < 16; ++i) {
                 tiles[i] = new Tile(-1);
+                tiles[i].setLoc(i);
                 grid[i] = new Tile(-1);
+                grid[i].setLoc(i+16);
                 grid[i].makeEmpty();
             }
         }
@@ -621,7 +561,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author Colin Riley
      */
     public byte[] fileOutArray() {
-        byte[] outByte = new byte[2488]; // if cafebeef 2360, cafedeed 2488?
+        byte[] outByte = new byte[2424]; // if cafebeef 2360, cafedeed 2488?
         byte[] ob = new byte[4];
         int byteCount = 0;
 
@@ -635,12 +575,12 @@ public class GameWindow extends JFrame implements ActionListener {
             else
                 ob[k] = (byte) 0xed;
         }
-        byteArr4ToFullByteArr(outByte, ob, byteCount);
+        toFullByteArray(outByte, ob, byteCount);
 
         byteCount += 4;
 
-        ob = convertIntToByteArray(32);
-        byteArr4ToFullByteArr(outByte, ob, byteCount);
+        ob = convertIntToByteArray(16);
+        toFullByteArray(outByte, ob, byteCount);
 
         byteCount += 4;
 
@@ -649,91 +589,54 @@ public class GameWindow extends JFrame implements ActionListener {
          * that to file else foo[i].getOtherAttributes and write to file
          */
 
-        for (int i = 0; i < 32; ++i) {
-            if (i < 16) {
-                if (tiles[i].getID() != -1) {
-                    ob = convertIntToByteArray(tiles[i].getID());
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
+        for (int i = 0; i < 16; ++i) {
+            Line[] line = Main.writeTileArray[i].getLines();
 
-                    ob = convertIntToByteArray(tiles[i].getOrient());
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-
-                    Line[] line = tiles[i].getLines();
-                    ob = convertIntToByteArray(line.length);
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-
-                    for (int j = 0; j < line.length; ++j) {
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getBegin().getX());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getBegin().getY());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getEnd().getX());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getEnd().getY());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
+            for(int k = 0; k< 16; ++k){
+                for(int j = 0; j < 16; ++j){
+                    if(Main.writeTileArray[k].getID() == tiles[j].getID()){
+                        //System.out.println("tile ID " + Main.writeTileArray[k].getID() + " = " + tiles[j].getID());
+                        Main.writeTileArray[k].setLoc(tiles[j].getLoc());
+                        Main.writeTileArray[k].setOrient(tiles[j].getOrient());
+                        //System.out.println("loc"+Main.writeTileArray[k].getLoc() + " = " + tiles[j].getLoc());
                     }
-                } else {
-                    ob = convertIntToByteArray(-1);
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-                }
-            } else {
-
-                if (grid[i - 16].getID() != -1) {
-                    ob = convertIntToByteArray(grid[i - 16].getID());
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-
-                    ob = convertIntToByteArray(grid[i - 16].getOrient());
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-
-                    Line[] line = grid[i - 16].getLines();
-                    ob = convertIntToByteArray(line.length);
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
-
-                    for (int j = 0; j < line.length; ++j) {
-                        // System.out.println(line[j]);
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getBegin().getX());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getBegin().getY());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getEnd().getX());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
-
-                        ob = convertFloatToByteArray(
-                                (float) line[j].getEnd().getY());
-                        byteArr4ToFullByteArr(outByte, ob, byteCount);
-                        byteCount += 4;
+                    if(Main.writeTileArray[k].getID() == grid[j].getID()){
+                        //System.out.println("grid ID"+Main.writeTileArray[k].getID() + " = " + grid[j].getID());
+                        Main.writeTileArray[k].setLoc(grid[j].getLoc());
+                        Main.writeTileArray[k].setOrient(grid[j].getOrient());
+                        //System.out.println("loc "+Main.writeTileArray[k].getLoc() + " = " + grid[j].getLoc());
                     }
-                } else {
-                    ob = convertIntToByteArray(-1);
-                    byteArr4ToFullByteArr(outByte, ob, byteCount);
-                    byteCount += 4;
                 }
+            }
+            
+            ob = convertIntToByteArray(Main.writeTileArray[i].getLoc());
+            toFullByteArray(outByte, ob, byteCount);
+            byteCount += 4;
+
+            ob = convertIntToByteArray(Main.writeTileArray[i].getOrient());
+            toFullByteArray(outByte, ob, byteCount);
+            byteCount += 4;
+
+            ob = convertIntToByteArray(line.length);
+            toFullByteArray(outByte, ob, byteCount);
+            byteCount += 4;
+
+            for (int j = 0; j < line.length; ++j) {
+                ob = convertFloatToByteArray((float) line[j].getBegin().getX());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                ob = convertFloatToByteArray((float) line[j].getBegin().getY());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                ob = convertFloatToByteArray((float) line[j].getEnd().getX());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                ob = convertFloatToByteArray((float) line[j].getEnd().getY());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
             }
         }
         return outByte;
@@ -913,16 +816,20 @@ public class GameWindow extends JFrame implements ActionListener {
             } else if (clickedTile.isEmpty() == false
                     && lastClicked.isEmpty() == false) {
                 int tempID = clickedTile.getID();
+                int tempLoc = clickedTile.getLoc();
                 int tempOrient = clickedTile.getOrient();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
+                clickedTile.setLoc(tempLoc);
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
                 lastClicked.setID(tempID);
+                lastClicked.setID(tempLoc);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
                 clickedTile.makeLive();
                 lastClicked.makeLive();
+                Main.game.repaint();
                 Main.game.repaint();
                 lastClicked = null;
                 played = true;
@@ -935,12 +842,15 @@ public class GameWindow extends JFrame implements ActionListener {
                 // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
                 int tempID = clickedTile.getID();
+                int tempLoc = clickedTile.getLoc();
                 int tempOrient = clickedTile.getOrient();
                 Line[] tempLines = clickedTile.getLines();
                 clickedTile.setID(lastClicked.getID());
+                clickedTile.setLoc(tempLoc);
                 clickedTile.setLines(lastClicked.getLines());
                 clickedTile.setOrient(lastClicked.getOrient());
                 lastClicked.setID(tempID);
+                lastClicked.setID(tempLoc);
                 lastClicked.setLines(tempLines);
                 lastClicked.setOrient(tempOrient);
                 clickedTile.switchState();
@@ -963,7 +873,6 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * TODO: CONSOLE STUFF TEMPORARY, MUST BE CHANGED*************
      * @author Colin Riley user enters a file name, .mze is added to it. array
      *         of bytes is written to created file of that name
      * @param outByte
@@ -985,14 +894,13 @@ public class GameWindow extends JFrame implements ActionListener {
     }
 
     /**
-     * TODO: Rename this function
      * @author Colin Riley function that adds 4byte arrays to a larger byte
      *         array
      * @param outByte
      * @param ob
      * @param i
      */
-    public static void byteArr4ToFullByteArr(byte[] outByte, byte[] ob, int i) {
+    public static void toFullByteArray(byte[] outByte, byte[] ob, int i) {
         for (int k = 0; k < 4; ++k) {
             outByte[i + k] = ob[k];
         }

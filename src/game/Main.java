@@ -42,6 +42,7 @@ public class Main {
     // so that the same state can be restored when the gameWindow is recreated
     public static Tile[] initialTileState = new Tile[16];
     public static Tile[] initialGridState = new Tile[16];
+    public static Tile[] writeTileArray = new Tile[16];
 
     public static void main(String[] args) {
         // This is the play area
