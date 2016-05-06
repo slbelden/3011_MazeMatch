@@ -12,7 +12,6 @@
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
- *
  */
 
 package game;
@@ -373,7 +372,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @param file
      * @param path
      */
-    public static void readFromFile(File file) {
+    public void readFromFile(File file) {
         // data containers
         int num = 0;
         float fnum = 0;
@@ -585,9 +584,10 @@ public class GameWindow extends JFrame implements ActionListener {
              */
         }
 
-        catch (IOException ioe) {
-            System.out.println("File not read\n");
+        catch (Exception e) {
+            // Reset all arrays to clean, safe states
             tiles = new Tile[16];
+            
             for (int i = 0; i < 16; ++i) {
                 tiles[i] = new Tile(-1);
                 tiles[i].setLoc(i);
@@ -595,8 +595,17 @@ public class GameWindow extends JFrame implements ActionListener {
                 grid[i] = new Tile(-1);
                 grid[i].setLoc(i + 16);
                 grid[i].makeEmpty();
-
             }
+            
+            JOptionPane.showMessageDialog(this,
+                    "There was a problem loading the file.",
+                    "Load Error",
+                    JOptionPane.ERROR_MESSAGE);
+            
+            // newWindow();
+            // setUp(Main.defaultPath, true, true);
+            
+            //loadGame();
         }
     }
 
