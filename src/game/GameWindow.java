@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version May 2, 2016
+ * @version May 6, 2016
  *
  * This is the actual "game".
  * This class handles all game logic, as well as rendering the game board.
@@ -33,33 +33,32 @@ import java.util.concurrent.TimeUnit;
 
 public class GameWindow extends JFrame implements ActionListener {
     // Avoid compiler complaints
-    public static final long   serialVersionUID = 1;
+    public static final long serialVersionUID = 1;
 
     // the hex string read at the top of the file
-    private static String      hexString        = "";
+    private static String hexString = "";
 
     // Declare Buttons
-    public static JButton      fileButton, resetButton, quitButton, saveButton,
+    public static JButton fileButton, resetButton, quitButton, saveButton,
             loadButton;
 
     // Data used for game logic
-    private static Tile        lastClicked;
+    private static Tile lastClicked;
 
     // creates arrays of tiles
-    private static Tile[]      tiles            = new Tile[16];
-    private static Tile[]      grid             = new Tile[16];
+    private static Tile[] tiles = new Tile[16];
+    private static Tile[] grid = new Tile[16];
 
     // Data for determining when to prompt the user about saving
-    private boolean            played           = false;
-    private boolean            start_timer           = false;
+    private static boolean played = false;
+    private static boolean start_timer = false;
     private static long startTime = System.currentTimeMillis();
 
     // Layout
-    private GridBagConstraints basic            = new GridBagConstraints();
+    private GridBagConstraints basic = new GridBagConstraints();
 
     /**
      * Constructor: Sets the window name using super() and changes the layout
-     * 
      * @author Kim Buckner
      * @param s
      *            is the window title
@@ -75,7 +74,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Top buttons
-     * 
      * @author Stephen Belden
      * @param e
      *            is the ActionEvent BTW can ask the event for the name of the
@@ -151,7 +149,8 @@ public class GameWindow extends JFrame implements ActionListener {
         case 1:
         case -1:
             String userhome = System.getProperty("user.home");
-            final JFileChooser chose = new JFileChooser(userhome + "\\workspace");
+            final JFileChooser chose =
+                    new JFileChooser(userhome + "\\workspace");
             chose.setFileSelectionMode(JFileChooser.FILES_ONLY);
             int response = chose.showOpenDialog(this);
             if (!chose.getSelectedFile().exists()) {
@@ -237,20 +236,21 @@ public class GameWindow extends JFrame implements ActionListener {
      */
     public void reset() {
         newWindow();
-        //start_timer =false;
+        // start_timer =false;
         Main.game.setUp(null, false, false);
     }
-    
+
     /**
      * @author Shaya Wolf
      * @return
      */
-    public boolean checkWinCond(){
+    public boolean checkWinCond() {
         boolean win = true;
         int count = 0;
-        
-        for(Tile t1 : grid){
-            if(!(Main.writeTileArray[count].getID() == t1.getID()) || t1.getOrient() !=0){
+
+        for (Tile t1 : grid) {
+            if (!(Main.writeTileArray[count].getID() == t1.getID())
+                    || t1.getOrient() != 0) {
                 win = false;
             }
             count++;
@@ -281,7 +281,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
     /**
      * Establishes the initial board
-     * 
      * @author Colin Riley
      * @author Stepen Belden
      * @author Shaya Wolf
@@ -349,7 +348,7 @@ public class GameWindow extends JFrame implements ActionListener {
         }
         if (Main.verbose)
             for (Tile t : tiles)
-                t.debugPrint();
+            t.debugPrint();
 
         // nested for loop to iterate through the grid (9 rows and 7 columns)
         for (int i = 0; i < 10; ++i) {
@@ -423,11 +422,9 @@ public class GameWindow extends JFrame implements ActionListener {
                     hexString = byteArrayToHexString(b);
                 }
                 if (!hexString.equals("CAFEBEEF")
-                        && !hexString.equals("CAFEDEED")) {
-                    throw new IOException();
-                }
-                if (i == 0) {
-                } else if (i == 4) {
+                        && !hexString.equals(
+                                "CAFEDEED")) { throw new IOException(); }
+                if (i == 0) {} else if (i == 4) {
                     num = convertToInt(b);
                     if (Main.verbose)
                         System.out.println("Num Tiles " + num);
@@ -712,7 +709,6 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Used by setUp() to configure the buttons on a button bar and add it to
      * the gameBoard Takes a GridBagConstraints to position the buttons
-     * 
      * @author Colin Riley
      * @param basic
      *            This doesn't need to be a function because it's only called
@@ -816,7 +812,7 @@ public class GameWindow extends JFrame implements ActionListener {
             clickedTile.setOrient(0);
         }
         repaint();
-        if(checkWinCond() == true){
+        if (checkWinCond() == true) {
             winPopup();
         }
     }
@@ -824,7 +820,6 @@ public class GameWindow extends JFrame implements ActionListener {
     /**
      * Handles the game logic for swapping tiles only after 2 different tiles
      * have been clicked.
-     * 
      * @author Stephen Belden
      * @param clickedTile
      *            is the tile that was most recently left-clicked
@@ -843,7 +838,6 @@ public class GameWindow extends JFrame implements ActionListener {
                 // Case in which two tiles are clicked
             } else if (clickedTile.isEmpty() == false
                     && lastClicked.isEmpty() == false) {
-                start_timer = true;
                 int tempID = clickedTile.getID();
                 int tempLoc = clickedTile.getLoc();
                 int tempOrient = clickedTile.getOrient();
@@ -862,8 +856,9 @@ public class GameWindow extends JFrame implements ActionListener {
                 Main.game.repaint();
                 lastClicked = null;
                 played = true;
-                if(start_timer)
+                if (!start_timer)
                     startTime = System.currentTimeMillis();
+                start_timer = true;
                 // Case in which two empty game board positions are clicked
             } else if (clickedTile.isEmpty() == true
                     && lastClicked.isEmpty() == true) {
@@ -872,7 +867,6 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked = null;
                 // Case in which one tile and one empty spot are clicked
             } else if (clickedTile.isEmpty() != lastClicked.isEmpty()) {
-                start_timer = true;
                 int tempID = clickedTile.getID();
                 int tempLoc = clickedTile.getLoc();
                 int tempOrient = clickedTile.getOrient();
@@ -889,8 +883,9 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked.switchState();
                 lastClicked = null;
                 played = true;
-                if(start_timer)
+                if (!start_timer)
                     startTime = System.currentTimeMillis();
+                start_timer = true;
 
                 if (Main.verbose) {
                     System.out.println("grid");
@@ -904,13 +899,13 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
             }
         }
-        if(checkWinCond() == true){
+        if (checkWinCond() == true) {
             winPopup();
         }
     }
-    
-    public void winPopup(){
-        //System.out.println("Winner winner chicken dinner");
+
+    public void winPopup() {
+        // System.out.println("Winner winner chicken dinner");
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         String hms = String.format("%02d:%02d:%02d",
@@ -922,8 +917,7 @@ public class GameWindow extends JFrame implements ActionListener {
                         - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
                                 .toMinutes(elapsedTime)));
         JOptionPane.showMessageDialog(this, "You Win!" + '\n' + hms);
-        //System.out.println(hms);
-        played=false;
+        played = false;
     }
 
     /**
