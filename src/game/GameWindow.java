@@ -404,6 +404,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         // a 4 byte array, used for converting to ints or floats
         byte[] b = new byte[4];
+        byte[] longb = new byte[8];
 
         // try catch for reading from the file
         try {
@@ -412,8 +413,16 @@ public class GameWindow extends JFrame implements ActionListener {
 
             for (int i = 0; i < file.length(); i += 4) {
                 // System.out.println("i = "+i);
-                for (int j = 0; j < 4; ++j) {
-                    b[j] = full[i + j];
+            
+                if( i == 8 && !hexString.equals("CAFEBEEF")){
+                    for (int j = 0; j < 8;++j){
+                        longb[j] = full[i+j];
+                    }
+                }
+                else{
+                    for (int j = 0; j < 4; ++j) {
+                        b[j] = full[i + j];
+                    }
                 }
 
                 if (i == 0) {
@@ -422,9 +431,11 @@ public class GameWindow extends JFrame implements ActionListener {
                     hexString = byteArrayToHexString(b);
                 }
                 if (!hexString.equals("CAFEBEEF")
-                        && !hexString.equals(
-                                "CAFEDEED")) { throw new IOException(); }
-                if (i == 0) {} else if (i == 4) {
+                        && !hexString.equals("CAFEDEED")) {
+                    throw new IOException();
+                }
+                if (i == 0) {
+                } else if (i == 4) {
                     num = convertToInt(b);
                     if (Main.verbose)
                         System.out.println("Num Tiles " + num);
@@ -440,7 +451,13 @@ public class GameWindow extends JFrame implements ActionListener {
                         grid[k].setLoc(k + 16);
                         grid[k].makeEmpty();
                     }
-                } else {
+                } 
+                else if(i == 8 && !hexString.equals("CAFEBEEF")){
+                    startTime= convertToLong(longb);
+                    System.out.println(startTime);
+                    i+=8;
+                }
+                else {
                     // the loop is going over the id of the tile
                     // convert the input and store in title
                     if (count == -2) {
@@ -457,6 +474,8 @@ public class GameWindow extends JFrame implements ActionListener {
 
                     else if (count == -1 && hexString.equals("CAFEDEED")) {
                         tileOrient = convertToInt(b);
+                        if (Main.verbose)
+                            System.out.println("Tile orient = " + tileOrient);
                         ++count;
                     }
 
@@ -585,82 +604,93 @@ public class GameWindow extends JFrame implements ActionListener {
      * @author Colin Riley
      */
     public byte[] fileOutArray() {
-        byte[] outByte = new byte[2424]; // if cafebeef 2360, cafedeed 2488?
-        byte[] ob = new byte[4];
-        int byteCount = 0;
+            byte[] outByte = new byte[2432]; // if cafebeef 2360, cafedeed 2488?
+            byte[] ob = new byte[4];
+            byte[] longob = new byte[4];
+            int byteCount = 0;
 
-        for (int k = 0; k < 4; ++k) {
-            if (k == 0)
-                ob[k] = (byte) 0xca;
-            else if (k == 1)
-                ob[k] = (byte) 0xfe;
-            else if (k == 2)
-                ob[k] = (byte) 0xde;
-            else
-                ob[k] = (byte) 0xed;
-        }
-        toFullByteArray(outByte, ob, byteCount);
+            for (int k = 0; k < 4; ++k) {
+                if (k == 0)
+                    ob[k] = (byte) 0xca;
+                else if (k == 1)
+                    ob[k] = (byte) 0xfe;
+                else if (k == 2)
+                    ob[k] = (byte) 0xde;
+                else
+                    ob[k] = (byte) 0xed;
+            }
+            toFullByteArray(outByte, ob, byteCount);
 
-        byteCount += 4;
+            byteCount += 4;
 
-        ob = convertIntToByteArray(16);
-        toFullByteArray(outByte, ob, byteCount);
+            ob = convertIntToByteArray(16);
+            toFullByteArray(outByte, ob, byteCount);
 
-        byteCount += 4;
+            byteCount += 4;
+            
+            
+            long stopTime = System.currentTimeMillis();
+            long elapsedTime = stopTime - startTime;
+            
+            longob = convertLongToByteArray(elapsedTime);
+            toFullByteArray(outByte, longob, byteCount);
+            
+            byteCount += 8;
 
-        /*
-         * if i <16 look at tiles, else at grid if foo[i].getID() ==-1 write
-         * that to file else foo[i].getOtherAttributes and write to file
-         */
+            /*
+             * if i <16 look at tiles, else at grid if foo[i].getID() ==-1 write
+             * that to file else foo[i].getOtherAttributes and write to file
+             */
 
-        for (int i = 0; i < 16; ++i) {
-            Line[] line = Main.writeTileArray[i].getLines();
+            for (int i = 0; i < 16; ++i) {
+                Line[] line = Main.writeTileArray[i].getLines();
 
-            for (int k = 0; k < 16; ++k) {
-                for (int j = 0; j < 16; ++j) {
-                    if (Main.writeTileArray[k].getID() == tiles[j].getID()) {
-                        Main.writeTileArray[k].setLoc(tiles[j].getLoc());
-                        Main.writeTileArray[k].setOrient(tiles[j].getOrient());
-                    }
-                    if (Main.writeTileArray[k].getID() == grid[j].getID()) {
-                        Main.writeTileArray[k].setLoc(grid[j].getLoc());
-                        Main.writeTileArray[k].setOrient(grid[j].getOrient());
+                for (int k = 0; k < 16; ++k) {
+                    for (int j = 0; j < 16; ++j) {
+                        if (Main.writeTileArray[k].getID() == tiles[j].getID()) {
+                            Main.writeTileArray[k].setLoc(tiles[j].getLoc());
+                            Main.writeTileArray[k].setOrient(tiles[j].getOrient());
+                        }
+                        if (Main.writeTileArray[k].getID() == grid[j].getID()) {
+                            Main.writeTileArray[k].setLoc(grid[j].getLoc());
+                            Main.writeTileArray[k].setOrient(grid[j].getOrient());
+                        }
                     }
                 }
+
+                ob = convertIntToByteArray(Main.writeTileArray[i].getLoc());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                ob = convertIntToByteArray(Main.writeTileArray[i].getOrient());
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                ob = convertIntToByteArray(line.length);
+                toFullByteArray(outByte, ob, byteCount);
+                byteCount += 4;
+
+                for (int j = 0; j < line.length; ++j) {
+                    ob = convertFloatToByteArray((float) line[j].getBegin().getX());
+                    toFullByteArray(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    ob = convertFloatToByteArray((float) line[j].getBegin().getY());
+                    toFullByteArray(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    ob = convertFloatToByteArray((float) line[j].getEnd().getX());
+                    toFullByteArray(outByte, ob, byteCount);
+                    byteCount += 4;
+
+                    ob = convertFloatToByteArray((float) line[j].getEnd().getY());
+                    toFullByteArray(outByte, ob, byteCount);
+                    byteCount += 4;
+                }
             }
-
-            ob = convertIntToByteArray(Main.writeTileArray[i].getLoc());
-            toFullByteArray(outByte, ob, byteCount);
-            byteCount += 4;
-
-            ob = convertIntToByteArray(Main.writeTileArray[i].getOrient());
-            toFullByteArray(outByte, ob, byteCount);
-            byteCount += 4;
-
-            ob = convertIntToByteArray(line.length);
-            toFullByteArray(outByte, ob, byteCount);
-            byteCount += 4;
-
-            for (int j = 0; j < line.length; ++j) {
-                ob = convertFloatToByteArray((float) line[j].getBegin().getX());
-                toFullByteArray(outByte, ob, byteCount);
-                byteCount += 4;
-
-                ob = convertFloatToByteArray((float) line[j].getBegin().getY());
-                toFullByteArray(outByte, ob, byteCount);
-                byteCount += 4;
-
-                ob = convertFloatToByteArray((float) line[j].getEnd().getX());
-                toFullByteArray(outByte, ob, byteCount);
-                byteCount += 4;
-
-                ob = convertFloatToByteArray((float) line[j].getEnd().getY());
-                toFullByteArray(outByte, ob, byteCount);
-                byteCount += 4;
-            }
+            startTime = elapsedTime;
+            return outByte;
         }
-        return outByte;
-    }
 
     // if anything besides the first 3 cells of row 1 or any of row
     // 2 are selected add empty cells to the board
@@ -949,7 +979,7 @@ public class GameWindow extends JFrame implements ActionListener {
      * @param i
      */
     public static void toFullByteArray(byte[] outByte, byte[] ob, int i) {
-        for (int k = 0; k < 4; ++k) {
+        for (int k = 0; k < ob.length ; ++k) {
             outByte[i + k] = ob[k];
         }
     }
@@ -969,6 +999,11 @@ public class GameWindow extends JFrame implements ActionListener {
     public static float convertToFloat(byte[] array) {
         ByteBuffer buffer = ByteBuffer.wrap(array);
         return buffer.getFloat();
+    }
+    
+    public static long convertToLong(byte[] array) {
+        ByteBuffer buffer = ByteBuffer.wrap(array);
+        return buffer.getLong();
     }
 
     public static String byteArrayToHexString(byte[] b) {
@@ -994,6 +1029,14 @@ public class GameWindow extends JFrame implements ActionListener {
         byte[] bytes = new byte[4];
         ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
         buffer.putFloat(value);
+        return buffer.array();
+    }
+    
+    public static byte[] convertLongToByteArray(long value) {
+
+        byte[] bytes = new byte[8];
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        buffer.putLong(value);
         return buffer.array();
     }
 

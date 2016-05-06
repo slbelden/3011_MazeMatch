@@ -8,7 +8,7 @@
  * @author Stephen Belden
  * @author Shaya Wolf
  * @author Neil Carrico
- * @version May 6, 2016
+ * @version May 2, 2016
  * 
  * The version of Main.java we are using now is largely unmodified from
  * the original.
@@ -28,11 +28,12 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Kim Buckner
  */
 public class Main {
-    // Set this to true if you want tile ID's to be displayed on the maze tiles
-    public static boolean verbose = true;
-    
-    // Globally accessible 
+    // Globally accessible:
     public static File defaultPath = new File("default.mze");
+
+    // Set this to true if you want debug output printed to the console,
+    // or if you want tileID's to be displayed on the maze.
+    public static boolean verbose = true;
 
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;
@@ -51,6 +52,7 @@ public class Main {
         game.setUp(defaultPath, true, true);
         game.reset();
         game.setVisible(true);
+        
 
         try {
             UIManager.setLookAndFeel(
