@@ -52,7 +52,7 @@ public class GameWindow extends JFrame implements ActionListener {
     // Data for determining when to prompt the user about saving
     private static boolean played = false;
     private static boolean start_timer = false;
-    private static long startTime = System.currentTimeMillis();
+    private static long startTime = System.currentTimeMillis() / 1000;
 
     // Layout
     private GridBagConstraints basic = new GridBagConstraints();
@@ -857,7 +857,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked = null;
                 played = true;
                 if (!start_timer)
-                    startTime = System.currentTimeMillis();
+                    startTime = System.currentTimeMillis() / 1000;
                 start_timer = true;
                 // Case in which two empty game board positions are clicked
             } else if (clickedTile.isEmpty() == true
@@ -884,7 +884,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 lastClicked = null;
                 played = true;
                 if (!start_timer)
-                    startTime = System.currentTimeMillis();
+                    startTime = System.currentTimeMillis() / 1000;
                 start_timer = true;
 
                 if (Main.verbose) {
@@ -906,15 +906,15 @@ public class GameWindow extends JFrame implements ActionListener {
 
     public void winPopup() {
         // System.out.println("Winner winner chicken dinner");
-        long stopTime = System.currentTimeMillis();
+        long stopTime = System.currentTimeMillis() / 1000;
         long elapsedTime = stopTime - startTime;
         String hms = String.format("%02d:%02d:%02d",
-                TimeUnit.MILLISECONDS.toHours(elapsedTime),
-                TimeUnit.MILLISECONDS.toMinutes(elapsedTime)
+                TimeUnit.SECONDS.toHours(elapsedTime),
+                TimeUnit.SECONDS.toMinutes(elapsedTime)
                         - TimeUnit.HOURS.toMinutes(
-                                TimeUnit.MILLISECONDS.toHours(elapsedTime)),
-                TimeUnit.MILLISECONDS.toSeconds(elapsedTime)
-                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+                                TimeUnit.SECONDS.toHours(elapsedTime)),
+                TimeUnit.SECONDS.toSeconds(elapsedTime)
+                        - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS
                                 .toMinutes(elapsedTime)));
         JOptionPane.showMessageDialog(this, "You Win!" + '\n' + hms);
         played = false;
