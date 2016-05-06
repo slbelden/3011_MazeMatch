@@ -33,7 +33,7 @@ public class Main {
 
     // Set this to true if you want debug output printed to the console,
     // or if you want tileID's to be displayed on the maze.
-    public static boolean verbose = false;
+    public static boolean verbose = true;
 
     // There should only be one game, and everything needs access to it.
     public static GameWindow game;

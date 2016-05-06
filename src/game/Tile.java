@@ -107,7 +107,7 @@ public class Tile extends JLabel implements MouseListener {
     };
 
     // Getter and Setter methods:
-
+    
     public int getLoc() {
         return loc;
     }
@@ -115,7 +115,7 @@ public class Tile extends JLabel implements MouseListener {
     public void setLoc(int x) {
         loc = x;
     }
-
+    
     public int getID() {
         return ID;
     }
@@ -143,7 +143,7 @@ public class Tile extends JLabel implements MouseListener {
     public void setLines(Line[] l) {
         lines = l;
     }
-
+    
     public boolean isEmpty() {
         return isEmpty;
     }
@@ -227,12 +227,12 @@ public class Tile extends JLabel implements MouseListener {
      * @author Stephen Belden
      */
     public void debugPrint() {
-        System.out.println("Tile with ID: " + ID + " with location " + loc
+        System.out.println("Tile with ID: " + ID  + " with location " + loc 
                 + " & isEmpty = " + (isEmpty ? "true" : "false") +
                 " has orientation " + orient + " holds these lines:");
-        if (ID != -1) {
+        if(ID!=-1){
             for (Line l : lines)
-                if (l != null)
+                if(l != null)
                     l.debugPrint();
         }
     }
