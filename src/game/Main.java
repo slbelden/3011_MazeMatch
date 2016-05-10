@@ -53,6 +53,7 @@ public class Main {
         game.setUp(defaultPath, true, true);
         game.reset();
         game.setVisible(true);
+        game.setResizable(false);
 
         try {
             UIManager.setLookAndFeel(
